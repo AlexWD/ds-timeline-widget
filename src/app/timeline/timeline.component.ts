@@ -1,0 +1,344 @@
+import { Component, OnInit, Input, AfterViewChecked } from '@angular/core';
+
+declare let $: any;
+declare let Draggable: any;
+declare let TweenLite: any;
+declare let ruler: any;
+
+@Component({
+  selector: 'app-timeline',
+  templateUrl: './timeline.component.html',
+  styleUrls: ['./timeline.component.css']
+})
+export class TimelineComponent implements OnInit, AfterViewChecked {
+  gridWidth = 196 * 4;
+  gridHeight = 50;
+  $container;
+
+  items = [];
+  channels = [];
+
+  selectedChannel = undefined;
+
+  @Input() config;
+
+  constructor() { }
+
+  ngOnInit() {
+    this.$container = $('#container');
+
+    for (var i = 0; i < this.config.channelCount; i++) {
+      this.addChannel();
+    }
+
+    // add timeline items
+
+    this.config.items.map((item) => {
+      this.addItem(item);
+    });
+
+    // reset item selection when the container is clicked
+    this.$container.click((e) => {
+      if (!$(e.target).hasClass('box') && !$(e.target).hasClass('box-image')) {
+        this.resetSelection();
+      }
+    });
+
+    var myRuler = new ruler({
+      container: document.querySelector('.ruler'),// reference to DOM element to apply rulers on
+      rulerHeight: 50, // thickness of ruler
+      fontFamily: 'arial',// font for points
+      fontSize: '10px',
+      cornerSides: [],
+      strokeStyle: 'black',
+      lineWidth: 1,
+      enableMouseTracking: false,
+      enableToolTip: false,
+      sides: ['top']
+    });
+
+    myRuler.api.setScale("1:00");
+  }
+
+  ngAfterViewChecked() {
+    this.items.map((item, i) => {
+      if (item.$el === undefined) {
+        var self = this;
+
+        var startX;
+        var startY;
+        var companions;
+
+        item.$el = $("li[data-bid='" + i + "']");
+
+        item.draggable = Draggable.create(item.$el, {
+          bounds: $('#container'),
+          edgeResistance: 1.0,
+          type: "x,y",
+          throwProps: false,
+          lockAxis: false,
+          x: 0,
+          y: 0,
+          liveSnap: {
+            y: function(endValue) { return Math.round(endValue / self.gridHeight) * self.gridHeight; },
+            x: function(endValue) { return endValue; }
+          },
+          onPress: function(e) {
+            // mutli-select functionality
+            if (!e.ctrlKey && $(".box.ui-selected").length == 1) {
+              self.resetSelection();
+            }
+            $(this.target).addClass('ui-selected');
+            e.stopPropagation();
+
+            //when the user presses, we'll create an array ("companions") and populate it with all the OTHER elements that have the ".ui-selected" class applied (excluding the one that's being dragged). We also record their x and y position so that we can apply the delta to it in the onDrag.
+            var boxes = $(".box.ui-selected"),
+              i = boxes.length;
+
+            companions = [];
+            startX = this.x;
+            startY = this.y;
+            while (--i > -1) {
+              if (boxes[i] !== this.target) {
+                companions.push({
+                  e: e,
+                  i: self.items.indexOf(item),
+                  item: self.items[$(boxes[i]).data('bid')],
+                  itemId: $(boxes[i]).data('bid'),
+                  element: boxes[i],
+                  x: boxes[i]._gsTransform.x,
+                  y: boxes[i]._gsTransform.y
+                });
+              } else {
+                self.items[$(boxes[i]).data('bid')].selected = true;
+              }
+            }
+            TweenLite.killTweensOf(".box");
+          },
+          onDrag: function() {
+            var i = companions.length,
+              deltaX = this.x - startX,
+              deltaY = this.y - startY,
+              companion;
+            while (--i > -1) {
+              companion = companions[i];
+
+              self.moveItem(companion.item, companion.x + deltaX, companion.y + deltaY);
+
+              // start the companion dragging with the original event
+              self.items[companion.i].draggable.startDrag(companion.e);
+            }
+          }
+
+        })[0];
+
+        //connect object to drag event listener to update position
+        item.draggable.addEventListener("drag", function() {
+          item.left = this._gsTransform.x;
+          item.top = this._gsTransform.y;
+        });
+
+        // set item initial position
+        this.moveItem(item, item.left, item.top);
+
+        // the ui-resizable-handles are added here
+        $('.resizable').resizable({
+          handles: 'e, w',
+          create: function(event, ui) { console.log(event); },
+          resize: function(event, ui) {
+            var id = ui.originalElement.data('bid');
+            self.items[id].width = ui.size.width;
+          },
+          stop: function(event, ui) {
+            // resizable modifies the left which messes with things, so we undo it and calculate the offsets
+            var left = parseInt($(this).css('left'));
+            var id = ui.originalElement.data('bid');
+
+            $(this).css({left: 0});
+
+            self.moveItem(self.items[id], self.items[id].left + left, self.items[id].top);
+          }
+        });
+
+        // makes GSAP Draggable avoid clicks on the resize handles
+        $('.ui-resizable-handle').attr('data-clickable', true);
+      }
+
+
+    });
+  }
+
+  addItem(item) {
+    this.items.push(item);
+  }
+
+  resetSelection() {
+    $('.resizable').removeClass('ui-selected');
+    for (var i = 0; i < this.items.length; ++i) {
+      this.items[i].selected = false;
+    }
+  }
+
+  drag(e, l) {
+    e.dataTransfer.setData("text", l);
+  }
+
+  drawChannels() {
+    var self = this;
+
+    this.$container.find(".timeline-row").remove();
+
+    this.channels.map((channel, i) => {
+      // create element for channel and append it to the container
+      channel.$el = $("<div/>").css({
+        position: "absolute",
+        border: "1px solid #454545",
+        width: this.gridWidth - 1,
+        height: this.gridHeight - 1,
+        top: i * this.gridHeight,
+        left: 0
+      }).addClass('timeline-row').appendTo(this.$container);
+
+      console.log(channel.$el);
+
+      // add ondrop event listener for accepting item drops
+      channel.$el[0].ondrop = (e) => {
+        e.preventDefault();
+
+        var data = e.dataTransfer.getData("text");
+        var offset = this.$container.offset();
+        var left = e.x - offset.left;
+        var top = Math.floor((e.y - offset.top) / this.gridHeight) * this.gridHeight;
+
+        this.addItem({
+          title: data,
+          left: left,
+          width: 60,
+          channel: Math.floor(top / this.gridHeight),
+          top: top,
+          draggable: undefined,
+          $el: undefined,
+          selected: false
+        });
+      };
+
+      channel.$el[0].ondragover = function(e) {
+        e.preventDefault();
+      };
+    });
+
+    //set the container's size to match the grid, and ensure that the box widths/heights reflect the variables above
+    this.updateContainerSize();
+
+    // update bounds for all draggable items
+    for (var i = 0; i < this.items.length; ++i) {
+      if (this.items[i].draggable !== undefined) {
+        this.items[i].draggable.applyBounds();
+      }
+    }
+  }
+
+  resizeToLargest() {
+    var largest = this.items.reduce((accum, item) => {
+      return Math.max(accum, item.width);
+    }, 0);
+
+    this.items.filter(item => item.selected)
+      .map((item) => {
+        item.width = largest;
+        item.$el.css({ width: largest });
+      });
+  }
+
+  closeGaps() {
+    var channel;
+    for (var i = 0; i < this.items.length; ++i) {
+      this.items[i].channel = Math.floor((this.items[i].top) / this.gridHeight);
+      if (this.items[i].selected) {
+        channel = this.items[i].channel;
+      }
+    }
+    if (channel !== undefined) {
+      // get the items in this channel and sort them left to right
+      var groupedItems = this.items.filter((item) => {
+        return item.channel == channel;
+      }).sort((a, b) => {
+        return a.left - b.left;
+      });
+
+      // place the channels
+      var nextStartPos = 0;
+      groupedItems.map((item, i) => {
+        this.moveItem(item, nextStartPos, item.top);
+        nextStartPos += item.width;
+      });
+    }
+  }
+
+  alignLeft() {
+    var leftAlign = this.items.filter((item) => item.selected)
+      .reduce((accum, item) => Math.min(accum, item.left), Infinity);
+
+    this.items.filter(item => item.selected)
+      .map((item, i) => {
+        this.moveItem(item, leftAlign, item.top)
+      });
+  }
+
+  alignRight() {
+    var rightAlign = this.items.filter((item) => item.selected)
+      .reduce((accum, item) => Math.max(accum, item.left + item.width), 0);
+
+    this.items.filter(item => item.selected)
+      .map((item, i) => {
+        this.moveItem(item, rightAlign - item.width, item.top)
+      });
+  }
+
+  moveItem(item, x, y) {
+    if (item) {
+      x = (x === undefined) ? item.left : x;
+      y = (y === undefined) ? item.top : y;
+
+      TweenLite.set(item.$el[0], { x: x, y: y });
+      item.draggable.update(); // update the draggable position
+      item.left = x;
+      item.top = y;
+    }
+  }
+
+  addChannel() {
+    var newChannel = {
+      name: "CH" + this.channels.length,
+      color: "",
+      $el: undefined
+    };
+
+    this.channels.push(newChannel);
+    this.drawChannels();
+  }
+
+  updateContainerSize() {
+    TweenLite.set(
+      this.$container, {
+        height: this.channels.length * this.gridHeight + 1,
+        width: this.gridWidth + 1
+      }
+    );
+  }
+
+  selectChannel(i) {
+    this.selectedChannel = this.channels[i];
+  }
+
+  deleteChannel(e) {
+    if (this.selectedChannel) {
+      this.channels.splice(this.channels.indexOf(this.selectedChannel), 1);
+      this.selectedChannel.$el.remove();
+      this.selectedChannel = undefined;
+
+      this.drawChannels();
+    }
+  }
+
+}

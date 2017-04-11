@@ -1,0 +1,64 @@
+<div class="container">
+  <div class="row" style="padding-top:50px;padding-bottom:50px;">
+    <button type="button" class="btn btn-default" (click)="addChannel()">Add Channel</button>
+    <button type="button" class="btn btn-default">Add Output</button>
+    <button type="button" class="btn btn-default" (click)="closeGaps()">Close Gaps</button>
+    <input type="checkbox"> Magnetic
+    <button type="button" class="btn btn-default" (click)="resizeToLargest()">Resize to largest</button>
+    <button type="button" class="btn btn-default" (click)="alignLeft()">Align Left</button>
+    <button type="button" class="btn btn-default" (click)="alignRight()">Align Right</button>
+    <input type="checkbox"> Switch
+    <input type="checkbox"> Frozen
+  </div>
+  <div class="row">
+    <div class="col-xs-11 col-xs-offset-1 ruler-container">
+      <div class="ruler">
+
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-1 channel-titles">
+      <div class="channel-title" *ngFor="let channel of channels; let i = index" (click)="selectChannel(i)">
+        {{ channel.name }}
+      </div>
+    </div>
+    <div class="col-xs-11 timeline">
+      <div id="container">
+        <li *ngFor="let item of items;let i = index"
+            class="resizable selectable box" id="box{{ i + 1 }}" [attr.data-bid]="i" [style.width.px]="item.width">
+          <img class="box-image" src="assets/img/doc-13-128.png" style="width:50px;float:left" />
+        </li>
+      </div>
+    </div>
+  </div>
+  <div class="row"  style="padding-top:50px;padding-bottom:50px;">
+    <div class="col-xs-4">
+      <table class="table">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Total time</th>
+          <th>size</th>
+        </tr>
+        <tr draggable="true" (dragstart)="drag($event, 'logo.jpg')">
+          <td>logo</td>
+          <td>jpg</td>
+          <td>0</td>
+          <td>161K</td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xs-4 col-xs-offset-4">
+      <div *ngIf="selectedChannel">
+        <form>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Name</label>
+            <input type="text" class="form-control" name="channel-name" [(ngModel)]="selectedChannel.name" placeholder="Email">
+          </div>
+          <button type="submit" class="btn btn-default" (click)="deleteChannel($event)">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
