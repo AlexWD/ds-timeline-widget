@@ -19,6 +19,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
   items = [];
   channels = [];
   outputs = [];
+  ruler = undefined;
   selectedChannel = undefined;
   frozen = false;
   zoom = 1;
@@ -49,7 +50,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       }
     });
 
-    var myRuler = new ruler({
+    this.ruler = new ruler({
       container: document.querySelector('.ruler'),// reference to DOM element to apply rulers on
       rulerHeight: 50, // thickness of ruler
       fontFamily: 'arial',// font for points
@@ -62,7 +63,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       sides: ['top']
     });
 
-    myRuler.api.setScale("1:00");
+    this.ruler.api.setScale(1);
   }
 
   ngAfterViewChecked() {
@@ -143,6 +144,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         //connect object to drag event listener to update position
         item.draggable.addEventListener("drag", function() {
           item.left = this._gsTransform.x;
+          item.baseLeft = this._gsTransform.x;
           item.top = this._gsTransform.y;
         });
 
@@ -156,6 +158,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
           resize: function(event, ui) {
             var id = ui.originalElement.data('bid');
             self.items[id].width = ui.size.width;
+            self.items[id].duration = ui.size.width * self.zoom;
           },
           stop: function(event, ui) {
             // resizable modifies the left which messes with things, so we undo it and calculate the offsets
@@ -181,7 +184,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       {},
       item,
       {
-        baseWidth: item.width,
+        duration: item.width,
         baseLeft: item.left
       }
     );
@@ -256,6 +259,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     this.items.filter(item => item.selected)
       .map((item) => {
         item.width = largest;
+        item.duration = largest * this.zoom;
         item.$el.css({ width: largest });
       });
   }
@@ -313,22 +317,20 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       TweenLite.set(item.$el[0], { x: x, y: y });
       item.draggable.update(); // update the draggable position
       item.left = x;
+      item.baseLeft = item.left * this.zoom;
       item.top = y;
     }
   }
 
   changeZoom(e) {
     var zoomFactor = 1 / this.zoom;
-    
-    this.$container.css({
-      transform: "scale(" + zoomFactor + ", 1.0)",
-      "transform-origin": "left"
+
+    this.items.map((item) => {
+      item.width = item.duration * zoomFactor;
+      this.moveItem(item, item.baseLeft * zoomFactor, item.top);
     });
 
-    $('.ruler').css({
-      transform: "scale(" + zoomFactor + ", 1.0)",
-      "transform-origin": "left"
-    });
+    this.ruler.api.setScale(this.zoom);
   }
 
   addChannel(channel) {

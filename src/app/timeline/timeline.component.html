@@ -35,7 +35,7 @@
     <div class="col-xs-11 timeline">
       <div id="container">
         <li *ngFor="let item of items;let i = index"
-            class="resizable selectable box" [attr.data-bid]="i" [style.width.px]="item.width * (1 / zoom)">
+            class="resizable selectable box" [attr.data-bid]="i" [style.width.px]="item.width">
           <img class="box-image" src="assets/img/doc-13-128.png" style="width:50px;float:left" />
         </li>
       </div>
