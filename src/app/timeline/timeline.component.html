@@ -36,7 +36,7 @@
       <div id="container">
         <li *ngFor="let item of items;let i = index"
             class="resizable selectable box" [attr.data-bid]="i" [style.width.px]="item.width">
-          <img class="box-image" src="assets/img/doc-13-128.png" style="width:50px;float:left" />
+          <img class="box-image" src="assets/img/doc-13-128.png" style="height: 100%;width: 100%;max-width: 50px;float:left" />
         </li>
       </div>
     </div>
