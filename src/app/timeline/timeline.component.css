@@ -20,6 +20,15 @@
   list-style: none;
 }
 
+.box-image {
+  user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
 :host /deep/ .ui-selected { background: #c7c7c7; }
 
 .ruler {
@@ -45,6 +54,17 @@
   cursor: pointer;
 }
 
+.channel-color {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+}
+
 .timeline {
   padding-left: 0px;
+}
+
+:host /deep/ .timeline-row {
+  position: absolute;
+  border: 1px solid #454545;
 }

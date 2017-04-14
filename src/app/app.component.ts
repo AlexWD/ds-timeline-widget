@@ -8,7 +8,20 @@ import { TimelineComponent } from './timeline/timeline.component';
 })
 export class AppComponent {
   config = {
-    channelCount: 4,
+    channels: [
+      {
+        name: 'CH0',
+        color: '#0000FF'
+      },
+      {
+        name: 'CH1',
+        color: '#0000FF'
+      },
+      {
+        name: 'CH2',
+        color: '#0000FF'
+      },
+    ],
     items: [
       {
         title: 'Timeline item #1',

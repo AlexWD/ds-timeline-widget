@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, Input, AfterViewChecked, EventEmitter, Output } from '@angular/core';
 
 declare let $: any;
 declare let Draggable: any;
@@ -11,28 +11,33 @@ declare let ruler: any;
   styleUrls: ['./timeline.component.css']
 })
 export class TimelineComponent implements OnInit, AfterViewChecked {
+  standardGridWidth = 196 * 4;
   gridWidth = 196 * 4;
   gridHeight = 50;
   $container;
 
   items = [];
   channels = [];
-
+  outputs = [];
   selectedChannel = undefined;
+  frozen = false;
+  zoom = 1;
 
   @Input() config;
+
+  @Output() onVoted = new EventEmitter<boolean>();
 
   constructor() { }
 
   ngOnInit() {
     this.$container = $('#container');
 
-    for (var i = 0; i < this.config.channelCount; i++) {
-      this.addChannel();
-    }
+    // add channels
+    this.config.channels.map((channel) => {
+      this.addChannel(channel);
+    });
 
     // add timeline items
-
     this.config.items.map((item) => {
       this.addItem(item);
     });
@@ -98,19 +103,22 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             companions = [];
             startX = this.x;
             startY = this.y;
+
+
             while (--i > -1) {
+              var boxId = $(boxes[i]).data('bid');
               if (boxes[i] !== this.target) {
                 companions.push({
                   e: e,
-                  i: self.items.indexOf(item),
-                  item: self.items[$(boxes[i]).data('bid')],
-                  itemId: $(boxes[i]).data('bid'),
+                  selfId: self.items.indexOf(item),
+                  item: self.items[boxId],
+                  itemId: boxId,
                   element: boxes[i],
                   x: boxes[i]._gsTransform.x,
                   y: boxes[i]._gsTransform.y
                 });
               } else {
-                self.items[$(boxes[i]).data('bid')].selected = true;
+                self.items[boxId].selected = true;
               }
             }
             TweenLite.killTweensOf(".box");
@@ -120,16 +128,16 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
               deltaX = this.x - startX,
               deltaY = this.y - startY,
               companion;
+
             while (--i > -1) {
               companion = companions[i];
 
               self.moveItem(companion.item, companion.x + deltaX, companion.y + deltaY);
 
               // start the companion dragging with the original event
-              self.items[companion.i].draggable.startDrag(companion.e);
+              self.items[companion.selfId].draggable.startDrag(companion.e);
             }
           }
-
         })[0];
 
         //connect object to drag event listener to update position
@@ -169,7 +177,15 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
   }
 
   addItem(item) {
-    this.items.push(item);
+    var newItem = Object.assign(
+      {},
+      item,
+      {
+        baseWidth: item.width,
+        baseLeft: item.left
+      }
+    );
+    this.items.push(newItem);
   }
 
   resetSelection() {
@@ -184,22 +200,16 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
   }
 
   drawChannels() {
-    var self = this;
-
     this.$container.find(".timeline-row").remove();
 
     this.channels.map((channel, i) => {
       // create element for channel and append it to the container
       channel.$el = $("<div/>").css({
-        position: "absolute",
-        border: "1px solid #454545",
         width: this.gridWidth - 1,
         height: this.gridHeight - 1,
         top: i * this.gridHeight,
         left: 0
       }).addClass('timeline-row').appendTo(this.$container);
-
-      console.log(channel.$el);
 
       // add ondrop event listener for accepting item drops
       channel.$el[0].ondrop = (e) => {
@@ -307,13 +317,30 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  addChannel() {
-    var newChannel = {
-      name: "CH" + this.channels.length,
-      color: "",
-      $el: undefined
-    };
+  changeZoom(e) {
+    var zoomFactor = 1 / this.zoom;
+    
+    this.$container.css({
+      transform: "scale(" + zoomFactor + ", 1.0)",
+      "transform-origin": "left"
+    });
 
+    $('.ruler').css({
+      transform: "scale(" + zoomFactor + ", 1.0)",
+      "transform-origin": "left"
+    });
+  }
+
+  addChannel(channel) {
+    var newChannel = Object.assign(
+        {},
+        channel,
+        {
+          $el: undefined,
+          name: "CH" + this.channels.length,
+          color: '#0000FF'
+        }
+    );
     this.channels.push(newChannel);
     this.drawChannels();
   }
@@ -329,6 +356,20 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   selectChannel(i) {
     this.selectedChannel = this.channels[i];
+  }
+
+  toggleFrozen(e) {
+    this.frozen = !this.frozen;
+
+    if (this.frozen) {
+      this.items.map((item) => {
+        item.draggable.disable();
+      });
+    } else {
+      this.items.map((item) => {
+        item.draggable.enable();
+      });
+    }
   }
 
   deleteChannel(e) {
