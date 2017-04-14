@@ -226,7 +226,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         this.addItem({
           title: data,
           left: left,
-          width: 60,
+          width: 60 * (1 / this.zoom),
           channel: Math.floor(top / this.gridHeight),
           top: top,
           draggable: undefined,
