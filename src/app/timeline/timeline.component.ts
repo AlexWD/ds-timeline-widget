@@ -18,10 +18,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   items = [];
   channels = [];
-  outputs = [{
-    name: "Output",
-    color: "#000"
-  }];
+  outputs = [];
   ruler = undefined;
   selectedChannel = undefined;
   selectedItem = undefined;
@@ -41,6 +38,11 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     // add channels
     this.config.channels.map((channel) => {
       this.addChannel(channel);
+    });
+
+    // add outputs
+    this.config.outputs.map((output) => {
+      this.addOutput(output);
     });
 
     // add timeline items
@@ -95,7 +97,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
           },
           onPress: function(e) {
             // select item
-            //self.selectedItem = item;
+            self.selectedItem = item;
 
             // mutli-select functionality
             if (!e.ctrlKey && $(".box.ui-selected").length == 1) {
@@ -133,8 +135,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             TweenLite.killTweensOf(".box");
           },
           onDrag: function() {
-            //
-
+            // update item bounds based on type of channel
             self.items.map((item, idx) => {
               var channel = self.channels[Math.floor(item.top / self.gridHeight)];
 
@@ -194,7 +195,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             var resizingItem = self.items[id];
 
             startWidth = resizingItem.width;
-            console.log("startWidth: " + startWidth);
           },
           create: function(event, ui) { console.log(event); },
           resize: function(event, ui) {
@@ -233,18 +233,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
 
     });
-  }
-
-  addItem(item) {
-    var newItem = Object.assign(
-      {},
-      item,
-      {
-        duration: item.width,
-        baseLeft: item.left
-      }
-    );
-    this.items.push(newItem);
   }
 
   resetSelection() {
@@ -365,6 +353,31 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       });
   }
 
+  changeZoom(e) {
+    var zoomFactor = 1 / this.zoom;
+
+    this.items.map((item) => {
+      item.width = item.duration * zoomFactor;
+      this.moveItem(item, item.baseLeft * zoomFactor, item.top);
+    });
+
+    this.ruler.api.setScale(this.zoom);
+  }
+
+  toggleFrozen(e) {
+    this.frozen = !this.frozen;
+
+    if (this.frozen) {
+      this.items.map((item) => {
+        item.draggable.disable();
+      });
+    } else {
+      this.items.map((item) => {
+        item.draggable.enable();
+      });
+    }
+  }
+
   moveItem(item, x, y) {
     if (item) {
       x = (x === undefined) ? item.left : x;
@@ -376,17 +389,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       item.baseLeft = item.left * this.zoom;
       item.top = y;
     }
-  }
-
-  changeZoom(e) {
-    var zoomFactor = 1 / this.zoom;
-
-    this.items.map((item) => {
-      item.width = item.duration * zoomFactor;
-      this.moveItem(item, item.baseLeft * zoomFactor, item.top);
-    });
-
-    this.ruler.api.setScale(this.zoom);
   }
 
   addChannel(channel) {
@@ -419,16 +421,29 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     this.drawChannels();
   }
 
-  addOutput() {
+  addOutput(output) {
     var newOutput = Object.assign(
       {},
       {
         name: "Output",
         color: "#000"
-      }
+      },
+      output
     );
 
     this.outputs.push(newOutput);
+  }
+
+  addItem(item) {
+    var newItem = Object.assign(
+      {},
+      item,
+      {
+        duration: item.width,
+        baseLeft: item.left
+      }
+    );
+    this.items.push(newItem);
   }
 
   updateContainerSize() {
@@ -456,20 +471,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     this.selectedOutput = this.outputs[i];
     this.selectedChannel = undefined;
     this.selectedItem = undefined;
-  }
-
-  toggleFrozen(e) {
-    this.frozen = !this.frozen;
-
-    if (this.frozen) {
-      this.items.map((item) => {
-        item.draggable.disable();
-      });
-    } else {
-      this.items.map((item) => {
-        item.draggable.enable();
-      });
-    }
   }
 
   deleteChannel(e) {

@@ -25,6 +25,12 @@ export class AppComponent {
         type: 'common'
       },
     ],
+    outputs: [
+      {
+        name: "Output",
+        color: "#000"
+      }
+    ],
     items: [
       {
         title: 'Timeline item #1',
