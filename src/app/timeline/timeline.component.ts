@@ -151,14 +151,40 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         // set item initial position
         this.moveItem(item, item.left, item.top);
 
+        var startWidth;
+
         // the ui-resizable-handles are added here
         $('.resizable').resizable({
           handles: 'e, w',
+          start: function (event, ui) {
+            var id = ui.originalElement.data('bid');
+            var resizingItem = self.items[id];
+
+            startWidth = resizingItem.width;
+            console.log("startWidth: " + startWidth);
+          },
           create: function(event, ui) { console.log(event); },
           resize: function(event, ui) {
             var id = ui.originalElement.data('bid');
-            self.items[id].width = ui.size.width;
-            self.items[id].duration = ui.size.width * self.zoom;
+            var resizingItem = self.items[id];
+            resizingItem.width = ui.size.width;
+            resizingItem.duration = ui.size.width * self.zoom;
+
+            console.log(event);
+
+            var widthDelta = resizingItem.width - startWidth;
+            console.log(widthDelta);
+
+            // move any companions
+            self.items.filter((item) => item.selected).map((selectedItem) => {
+              if (selectedItem != resizingItem) {
+                //selectedItem.
+                selectedItem.width += widthDelta;
+                selectedItem.duration = selectedItem.width * self.zoom;
+              }
+            });
+
+            startWidth = resizingItem.width;
           },
           stop: function(event, ui) {
             // resizable modifies the left which messes with things, so we undo it and calculate the offsets
