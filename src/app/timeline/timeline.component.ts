@@ -97,7 +97,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
           },
           onPress: function(e) {
             // select item
-            self.selectedItem = item;
+            self.selectItem(item);
 
             // mutli-select functionality
             if (!e.ctrlKey && $(".box.ui-selected").length == 1) {
@@ -230,8 +230,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         // makes GSAP Draggable avoid clicks on the resize handles
         $('.ui-resizable-handle').attr('data-clickable', true);
       }
-
-
     });
   }
 
@@ -288,11 +286,11 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     this.updateContainerSize();
 
     // update bounds for all draggable items
-    for (var i = 0; i < this.items.length; ++i) {
-      if (this.items[i].draggable !== undefined) {
-        this.items[i].draggable.applyBounds();
+    this.items.map((item) => {
+      if (item.draggable !== undefined) {
+        item.draggable.applyBounds();
       }
-    }
+    });
   }
 
   resizeToLargest() {
@@ -461,8 +459,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     this.selectedOutput = undefined;
   }
 
-  selectItem(i) {
-    this.selectedItem = this.items[i];
+  selectItem(item) {
+    this.selectedItem = item;
     this.selectedChannel = undefined;
     this.selectedOutput = undefined;
   }
