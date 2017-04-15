@@ -18,9 +18,14 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   items = [];
   channels = [];
-  outputs = [];
+  outputs = [{
+    name: "Output",
+    color: "#000"
+  }];
   ruler = undefined;
   selectedChannel = undefined;
+  selectedItem = undefined;
+  selectedOutput = undefined;
   frozen = false;
   zoom = 1;
 
@@ -89,6 +94,9 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             x: function(endValue) { return endValue; }
           },
           onPress: function(e) {
+            // select item
+            //self.selectedItem = item;
+
             // mutli-select functionality
             if (!e.ctrlKey && $(".box.ui-selected").length == 1) {
               self.resetSelection();
@@ -133,9 +141,11 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             while (--i > -1) {
               companion = companions[i];
 
+
               self.moveItem(companion.item, companion.x + deltaX, companion.y + deltaY);
 
               if (!companion.item.draggable.hitTest('#container', "100%")) { // if the item is moved outside of the bounds, move it back
+                console.log('undo movement');
                 self.moveItem(companion.item, companion.lastX, companion.lastY);
               } else {
                 companion.lastX = companion.x + deltaX;
@@ -177,10 +187,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             resizingItem.width = ui.size.width;
             resizingItem.duration = ui.size.width * self.zoom;
 
-            console.log(event);
-
             var widthDelta = resizingItem.width - startWidth;
-            console.log(widthDelta);
 
             // move any companions
             self.items.filter((item) => item.selected).map((selectedItem) => {
@@ -380,6 +387,18 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     this.drawChannels();
   }
 
+  addOutput() {
+    var newOutput = Object.assign(
+      {},
+      {
+        name: "Output",
+        color: "#000"
+      }
+    );
+
+    this.outputs.push(newOutput);
+  }
+
   updateContainerSize() {
     TweenLite.set(
       this.$container, {
@@ -391,6 +410,20 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   selectChannel(i) {
     this.selectedChannel = this.channels[i];
+    this.selectedItem = undefined;
+    this.selectedOutput = undefined;
+  }
+
+  selectItem(i) {
+    this.selectedItem = this.items[i];
+    this.selectedChannel = undefined;
+    this.selectedOutput = undefined;
+  }
+
+  selectOutput(i) {
+    this.selectedOutput = this.outputs[i];
+    this.selectedChannel = undefined;
+    this.selectedItem = undefined;
   }
 
   toggleFrozen(e) {
@@ -414,6 +447,20 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       this.selectedChannel = undefined;
 
       this.drawChannels();
+    }
+  }
+
+  deleteOutput(e) {
+    if (this.selectedOutput) {
+      this.outputs.splice(this.outputs.indexOf(this.selectedOutput), 1);
+      this.selectedOutput = undefined;
+    }
+  }
+
+  deleteItem(e) {
+    if (this.selectedItem) {
+      this.items.splice(this.items.indexOf(this.selectedItem), 1);
+      this.selectedItem = undefined;
     }
   }
 
