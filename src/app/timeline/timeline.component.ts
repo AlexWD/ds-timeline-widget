@@ -71,8 +71,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       if (item.$el === undefined) {
         var self = this;
 
-        var startX;
-        var startY;
+        var startX, startY;
         var companions;
 
         item.$el = $("li[data-bid='" + i + "']");
@@ -105,7 +104,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             startX = this.x;
             startY = this.y;
 
-
             while (--i > -1) {
               var boxId = $(boxes[i]).data('bid');
               if (boxes[i] !== this.target) {
@@ -116,7 +114,9 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
                   itemId: boxId,
                   element: boxes[i],
                   x: boxes[i]._gsTransform.x,
-                  y: boxes[i]._gsTransform.y
+                  y: boxes[i]._gsTransform.y,
+                  lastX: boxes[i]._gsTransform.x,
+                  lastY: boxes[i]._gsTransform.y
                 });
               } else {
                 self.items[boxId].selected = true;
@@ -134,6 +134,13 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
               companion = companions[i];
 
               self.moveItem(companion.item, companion.x + deltaX, companion.y + deltaY);
+
+              if (!companion.item.draggable.hitTest('#container', "100%")) { // if the item is moved outside of the bounds, move it back
+                self.moveItem(companion.item, companion.lastX, companion.lastY);
+              } else {
+                companion.lastX = companion.x + deltaX;
+                companion.lastY = companion.y + deltaY;
+              }
 
               // start the companion dragging with the original event
               self.items[companion.selfId].draggable.startDrag(companion.e);
