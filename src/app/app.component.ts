@@ -11,15 +11,18 @@ export class AppComponent {
     channels: [
       {
         name: 'CH0',
+        type: 'normal',
         color: '#0000FF'
       },
       {
         name: 'CH1',
+        type: 'normal',
         color: '#0000FF'
       },
       {
         name: 'CH2',
-        color: '#0000FF'
+        color: '#0000FF',
+        type: 'common'
       },
     ],
     items: [

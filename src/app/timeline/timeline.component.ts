@@ -133,6 +133,24 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             TweenLite.killTweensOf(".box");
           },
           onDrag: function() {
+            //
+
+            self.items.map((item, idx) => {
+              var channel = self.channels[Math.floor(item.top / self.gridHeight)];
+
+              if (channel && channel.type == "common") {
+                item.draggable.applyBounds({
+                  top: 0,
+                  left: 0,
+                  width: 1300,
+                  height: self.$container.height()
+                });
+              } else {
+                item.draggable.applyBounds(self.$container);
+              }
+            });
+
+            // mutliselect movement
             var i = companions.length,
               deltaX = this.x - startX,
               deltaY = this.y - startY,
@@ -141,11 +159,9 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             while (--i > -1) {
               companion = companions[i];
 
-
               self.moveItem(companion.item, companion.x + deltaX, companion.y + deltaY);
 
               if (!companion.item.draggable.hitTest('#container', "100%")) { // if the item is moved outside of the bounds, move it back
-                console.log('undo movement');
                 self.moveItem(companion.item, companion.lastX, companion.lastY);
               } else {
                 companion.lastX = companion.x + deltaX;
@@ -376,12 +392,28 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
   addChannel(channel) {
     var newChannel = Object.assign(
         {},
-        channel,
         {
           $el: undefined,
           name: "CH" + this.channels.length,
+          type: "normal",
+          color: '#00FFFF'
+        },
+        channel
+    );
+    this.channels.push(newChannel);
+    this.drawChannels();
+  }
+
+  addCommonChannel(channel) {
+    var newChannel = Object.assign(
+        {},
+        {
+          $el: undefined,
+          name: "CH" + this.channels.length,
+          type: "common",
           color: '#0000FF'
-        }
+        },
+        channel
     );
     this.channels.push(newChannel);
     this.drawChannels();

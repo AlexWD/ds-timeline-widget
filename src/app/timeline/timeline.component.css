@@ -54,6 +54,10 @@
   cursor: pointer;
 }
 
+.common-channel {
+  text-decoration: underline;
+}
+
 .channel-color {
   width: 10px;
   height: 10px;

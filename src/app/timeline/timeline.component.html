@@ -1,7 +1,7 @@
 <div class="container">
   <div class="row" style="padding-top:50px;padding-bottom:50px;">
     <button type="button" class="btn btn-default" (click)="addChannel()">Add Channel</button>
-    <button type="button" class="btn btn-default">Add Common Channel</button>
+    <button type="button" class="btn btn-default" (click)="addCommonChannel()">Add Common Channel</button>
     <button type="button" class="btn btn-default" (click)="addOutput()">Add Output</button>
     <button type="button" class="btn btn-default" (click)="closeGaps()">Close Gaps</button>
     <input type="checkbox"> Magnetic
@@ -31,14 +31,13 @@
       <div class="channel-title" *ngFor="let output of outputs; let i = index" (click)="selectOutput(i)">
         <span class="channel-color" [style.backgroundColor]="output.color"></span> {{ output.name }}
       </div>
-      <div class="channel-title" *ngFor="let channel of channels; let i = index" (click)="selectChannel(i)">
+      <div class="channel-title" *ngFor="let channel of channels; let i = index" [class.common-channel]="channel.type == 'common'" (click)="selectChannel(i)">
         <span class="channel-color" [style.backgroundColor]="channel.color"></span> {{ channel.name }}
       </div>
     </div>
     <div class="col-xs-11 timeline">
       <div>
         <div class="output-row" *ngFor="let output of outputs; let i = index" [style.top.px]="i * 50">
-
         </div>
       </div>
       <div id="container">
