@@ -34,14 +34,14 @@ export class AppComponent {
     ],
     items: [
       {
-        title: 'Timeline item #1',
+        title: 'Logo_splash',
         start: 0,
         duration: 60,
         channel: 0,
         selected: false
       },
       {
-        title: 'Timeline item #2',
+        title: '350x350',
         start: 300,
         duration: 60,
         channel: 1,

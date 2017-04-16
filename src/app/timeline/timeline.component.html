@@ -44,6 +44,7 @@
         <li *ngFor="let item of state.items;let i = index"
             class="resizable selectable box" [attr.data-bid]="i" [style.width.px]="item.width">
           <img class="box-image" src="assets/img/doc-13-128.png" style="height: 100%;width: 100%;max-width: 50px;float:left" />
+          <div class="item-title">{{ item.title }}</div>
         </li>
       </div>
     </div>

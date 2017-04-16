@@ -29,6 +29,11 @@
   -ms-user-select: none;
 }
 
+.item-title {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 :host /deep/ .ui-selected { background: #c7c7c7; }
 
 .ruler {
