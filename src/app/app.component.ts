@@ -7,7 +7,8 @@ import { TimelineComponent } from './timeline/timeline.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  config = {
+  state = {
+    zoom: 1,
     channels: [
       {
         name: 'CH0',
@@ -34,24 +35,30 @@ export class AppComponent {
     items: [
       {
         title: 'Timeline item #1',
-        left: 0,
-        width: 60,
+        start: 0,
+        duration: 60,
         channel: 0,
-        top: 0,
-        draggable: undefined,
-        $el: undefined,
         selected: false
       },
       {
         title: 'Timeline item #2',
-        left: 300,
-        width: 60,
-        top: 50,
+        start: 300,
+        duration: 60,
         channel: 1,
-        draggable: undefined,
-        $el: undefined,
         selected: false
       }
     ]
+  }
+
+  itemMoved(state) {
+    console.log("Item moved", state);
+  }
+
+  channelAdded(state) {
+    console.log("Channel added", state);
+  }
+
+  itemAdded(state) {
+    console.log("Item Added", state);
   }
 }

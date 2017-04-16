@@ -1,5 +1,7 @@
 <app-timeline
-  [config]="config"
+  [state]="state"
 
-  (onClicked)="onClicked($event)"
+  (itemAdded)="itemAdded($event)"
+  (channelAdded)="channelAdded($event)"
+  (itemMoved)="itemMoved($event)"
 ></app-timeline>

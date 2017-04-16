@@ -4,13 +4,13 @@
     <button type="button" class="btn btn-default" (click)="addCommonChannel()">Add Common Channel</button>
     <button type="button" class="btn btn-default" (click)="addOutput()">Add Output</button>
     <button type="button" class="btn btn-default" (click)="closeGaps()">Close Gaps</button>
-    <input type="checkbox"> Magnetic
+    <input type="checkbox" [(ngModel)]="state.magnetic"> Magnetic
     <button type="button" class="btn btn-default" (click)="resizeToLargest()">Resize to largest</button>
     <button type="button" class="btn btn-default" (click)="alignLeft()">Align Left</button>
     <button type="button" class="btn btn-default" (click)="alignRight()">Align Right</button>
     <input type="checkbox"> Switch
     <input type="checkbox" (change)="toggleFrozen($event)"> Frozen
-    <select (change)="changeZoom($event)" [(ngModel)]="zoom">
+    <select (change)="changeZoom($event)" [(ngModel)]="state.zoom">
       <option value="1">1.0 : 10</option>
       <option value="2">2.0 : 10</option>
       <option value="5">5.0 : 10</option>
@@ -28,20 +28,20 @@
   </div>
   <div class="row">
     <div class="col-xs-1 channel-titles">
-      <div class="channel-title" *ngFor="let output of outputs; let i = index" (click)="selectOutput(i)">
+      <div class="channel-title" *ngFor="let output of state.outputs; let i = index" (click)="selectOutput(i)">
         <span class="channel-color" [style.backgroundColor]="output.color"></span> {{ output.name }}
       </div>
-      <div class="channel-title" *ngFor="let channel of channels; let i = index" [class.common-channel]="channel.type == 'common'" (click)="selectChannel(i)">
+      <div class="channel-title" *ngFor="let channel of state.channels; let i = index" [class.common-channel]="channel.type == 'common'" (click)="selectChannel(i)">
         <span class="channel-color" [style.backgroundColor]="channel.color"></span> {{ channel.name }}
       </div>
     </div>
     <div class="col-xs-11 timeline">
       <div>
-        <div class="output-row" *ngFor="let output of outputs; let i = index" [style.top.px]="i * 50">
+        <div class="output-row" *ngFor="let output of state.outputs; let i = index" [style.top.px]="i * this.state.gridHeight">
         </div>
       </div>
       <div id="container">
-        <li *ngFor="let item of items;let i = index"
+        <li *ngFor="let item of state.items;let i = index"
             class="resizable selectable box" [attr.data-bid]="i" [style.width.px]="item.width">
           <img class="box-image" src="assets/img/doc-13-128.png" style="height: 100%;width: 100%;max-width: 50px;float:left" />
         </li>
@@ -66,37 +66,37 @@
       </table>
     </div>
     <div class="col-xs-4 col-xs-offset-4">
-      <div *ngIf="selectedChannel">
+      <div *ngIf="state.selectedChannel">
         <form>
           <div class="form-group">
             <label for="exampleInputEmail1">Name</label>
-            <input type="text" class="form-control" name="channel-name" [(ngModel)]="selectedChannel.name" placeholder="Email">
+            <input type="text" class="form-control" name="channel-name" [(ngModel)]="state.selectedChannel.name" placeholder="Email">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">Color</label>
-            <input type="text" class="form-control" name="channel-color" [(ngModel)]="selectedChannel.color" placeholder="Color">
+            <input type="text" class="form-control" name="channel-color" [(ngModel)]="state.selectedChannel.color" placeholder="Color">
           </div>
           <button type="submit" class="btn btn-default" (click)="deleteChannel($event)">Delete</button>
         </form>
       </div>
-      <div *ngIf="selectedOutput">
+      <div *ngIf="state.selectedOutput">
         <form>
           <div class="form-group">
             <label for="exampleInputEmail1">Name</label>
-            <input type="text" class="form-control" name="output-name" [(ngModel)]="selectedOutput.name" placeholder="Email">
+            <input type="text" class="form-control" name="output-name" [(ngModel)]="state.selectedOutput.name" placeholder="Email">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail1">Color</label>
-            <input type="text" class="form-control" name="output-color" [(ngModel)]="selectedOutput.color" placeholder="Color">
+            <input type="text" class="form-control" name="output-color" [(ngModel)]="state.selectedOutput.color" placeholder="Color">
           </div>
           <button type="submit" class="btn btn-default" (click)="deleteOutput($event)">Delete</button>
         </form>
       </div>
-      <div *ngIf="selectedItem">
+      <div *ngIf="state.selectedItem">
         <form>
           <div class="form-group">
             <label for="exampleInputEmail1">Name</label>
-            <input type="text" class="form-control" name="item-title" [(ngModel)]="selectedItem.title" placeholder="Email">
+            <input type="text" class="form-control" name="item-title" [(ngModel)]="state.selectedItem.title" placeholder="Email">
           </div>
           <button type="submit" class="btn btn-default" (click)="deleteItem($event)">Delete</button>
         </form>
