@@ -52,7 +52,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
     // reset item selection when the container is clicked
     this.$container.click((e) => {
-      if (!$(e.target).hasClass('box') && !$(e.target).hasClass('box-image')) {
+      if (!$(e.target).hasClass('box') && !$(e.target).hasClass('box-image') && !$(e.target).hasClass('item-title')) {
         this.resetSelection();
       }
     });
