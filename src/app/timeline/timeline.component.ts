@@ -26,6 +26,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     selectedOutput: undefined,
     frozen: false,
     magnetic: false,
+    switch: false,
     zoom: 1
   };
 
@@ -82,8 +83,12 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
         var startX, startY;
         var companions;
+        var lastOverlap = 0;
 
         item.$el = $("li[data-bid='" + i + "']");
+
+        // array of overlap positions for switching
+        item.lastOverlaps = [];
 
         item.draggable = Draggable.create(item.$el, {
           bounds: self.$container,
@@ -218,6 +223,39 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
                         }
                         t = undefined;
                       }, 300);
+                    }
+                  }
+                });
+              });
+            }
+
+            if (self.state.switch) {
+              self.state.items.filter(item => item.selected).map((selectedItem) => {
+                self.state.items.filter(item => !item.selected).map((otherItem) => {
+                  if (selectedItem.channel == otherItem.channel) {
+                    // once two items touch, bring them closer together
+                    var selectedItemId = self.state.items.indexOf(selectedItem);
+
+                    var overlap = (otherItem.left < selectedItem.left) ?
+                                   otherItem.left + otherItem.width - selectedItem.left :
+                                   selectedItem.left + selectedItem.width - otherItem.left;
+
+                    if (overlap > 1) {
+                      var overlapDelta = overlap - otherItem.lastOverlaps[selectedItemId];
+                      if (selectedItem.left < otherItem.left) {
+                        if (overlapDelta > 0) {
+                          self.moveItem(otherItem, otherItem.left - 2, otherItem.top);
+                        } else {
+                          self.moveItem(otherItem, otherItem.left + 2, otherItem.top);
+                        }
+                      } else {
+                        if (overlapDelta > 0) {
+                          self.moveItem(otherItem, otherItem.left + 2, otherItem.top);
+                        } else {
+                          self.moveItem(otherItem, otherItem.left - 2, otherItem.top);
+                        }
+                      }
+                      otherItem.lastOverlaps[selectedItemId] = overlap;
                     }
                   }
                 });

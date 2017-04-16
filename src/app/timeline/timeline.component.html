@@ -8,7 +8,7 @@
     <button type="button" class="btn btn-default" (click)="resizeToLargest()">Resize to largest</button>
     <button type="button" class="btn btn-default" (click)="alignLeft()">Align Left</button>
     <button type="button" class="btn btn-default" (click)="alignRight()">Align Right</button>
-    <input type="checkbox"> Switch
+    <input type="checkbox" [(ngModel)]="state.switch"> Switch
     <input type="checkbox" (change)="toggleFrozen($event)"> Frozen
     <select (change)="changeZoom($event)" [(ngModel)]="state.zoom">
       <option value="1">1.0 : 10</option>
