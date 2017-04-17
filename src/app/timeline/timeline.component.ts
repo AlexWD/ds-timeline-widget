@@ -88,9 +88,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
         item.$el = $("li[data-bid='" + i + "']");
 
-        // array of overlap positions for switching
-        item.lastOverlaps = [];
-
         item.draggable = Draggable.create(item.$el, {
           bounds: self.$container,
           edgeResistance: 1.0,
@@ -101,7 +98,25 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
           y: 0,
           liveSnap: {
             y: function(endValue) { return Math.round(endValue / self.state.gridHeight) * self.state.gridHeight; },
-            x: function(endValue) { return endValue; }
+            x: function(endValue) {
+              // magnetic snapping
+              if (self.state.magnetic) {
+                self.state.items.filter(filterItem => filterItem != item && filterItem.channel == item.channel).map((otherItem) => {
+                  if (endValue >= otherItem.left + otherItem.width - 5 &&
+                    endValue <= otherItem.left + otherItem.width + 5) {
+                    endValue = otherItem.left + otherItem.width;
+                  }
+
+                  if (endValue + item.width >= otherItem.left - 5 &&
+                    endValue + item.width <= otherItem.left + 5) {
+                    endValue = otherItem.left - item.width;
+                  }
+                });
+              }
+
+              return endValue;
+
+            }
           },
           onPress: function(e) {
             // select item
@@ -183,51 +198,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
               // start the companion dragging with the original event
               self.state.items[companion.selfId].draggable.startDrag(companion.e);
-            }
-
-            // magnetic
-
-            if (self.state.magnetic) {
-              var t;
-              self.state.items.filter(item => item.selected).map((item1) => {
-                self.state.items.filter(item => !item.selected).map((item2) => {
-                  if (item1.channel == item2.channel) {
-                    var leftBoundDiff = Math.abs(item1.left - (item2.left + item2.width));
-
-                    if (leftBoundDiff <= 20) {
-                      if (t !== undefined) {
-                        // clear any previous timers
-                        clearTimeout(t);
-                        t = undefined;
-                      }
-                      // if the boxes are within range after 300ms, snap them together
-                      t = setTimeout(() => {
-                        var leftBoundDiff = Math.abs(item1.left - (item2.left + item2.width));
-                        if (leftBoundDiff <= 20) {
-                          self.moveItem(item1, item2.left + item2.width, item1.top);
-                        }
-                        t = undefined;
-                      }, 300);
-                    }
-
-                    var rightBoundDiff = Math.abs(item2.left - (item1.left + item1.width));
-
-                    if (rightBoundDiff <= 20) {
-                      if (t !== undefined) {
-                        clearTimeout(t);
-                        t = undefined;
-                      }
-                      t = setTimeout(() => {
-                        var rightBoundDiff = Math.abs(item2.left - (item1.left + item1.width));
-                        if (rightBoundDiff <= 20) {
-                          self.moveItem(item1, item2.left - item1.width, item1.top);
-                        }
-                        t = undefined;
-                      }, 300);
-                    }
-                  }
-                });
-              });
             }
 
             if (self.state.switch) {
