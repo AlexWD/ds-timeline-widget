@@ -34,6 +34,7 @@ export class AppComponent {
     ],
     items: [
       {
+        resource: "assets/img/doc-13-128.png",
         title: 'Logo_splash',
         start: 0,
         duration: 60,
@@ -41,6 +42,7 @@ export class AppComponent {
         selected: false
       },
       {
+        resource: "assets/img/doc-13-128.png",
         title: '350x350',
         start: 300,
         duration: 60,

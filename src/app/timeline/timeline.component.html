@@ -43,7 +43,7 @@
       <div id="container">
         <li *ngFor="let item of state.items;let i = index"
             class="resizable selectable box" [attr.data-bid]="i" [style.width.px]="item.width">
-          <img class="box-image" src="assets/img/doc-13-128.png" style="height: 100%;width: 100%;max-width: 50px;float:left" />
+          <img class="box-image" src="{{ item.resource }}" style="height: 100%;width: 100%;max-width: 50px;float:left" />
           <div class="item-title">{{ item.title }}</div>
         </li>
       </div>
@@ -58,9 +58,15 @@
           <th>Total time</th>
           <th>size</th>
         </tr>
-        <tr draggable="true" (dragstart)="drag($event, 'logo.jpg')">
+        <tr draggable="true" (dragstart)="drag($event, {resource: 'assets/img/doc-13-128.png', label: 'logo'})">
           <td>logo</td>
           <td>jpg</td>
+          <td>0</td>
+          <td>161K</td>
+        </tr>
+        <tr draggable="true" (dragstart)="drag($event, {resource: 'assets/img/svgexample.svg', label: 'sample svg'})">
+          <td>sample svg</td>
+          <td>svg</td>
           <td>0</td>
           <td>161K</td>
         </tr>
