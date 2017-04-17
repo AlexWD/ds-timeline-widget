@@ -234,29 +234,19 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
               self.state.items.filter(item => item.selected).map((selectedItem) => {
                 self.state.items.filter(item => !item.selected).map((otherItem) => {
                   if (selectedItem.channel == otherItem.channel) {
-                    // once two items touch, bring them closer together
                     var selectedItemId = self.state.items.indexOf(selectedItem);
 
-                    var overlap = (otherItem.left < selectedItem.left) ?
-                                   otherItem.left + otherItem.width - selectedItem.left :
-                                   selectedItem.left + selectedItem.width - otherItem.left;
+                    var min = 0,
+                      max = (selectedItem.channel.type == "common" ? 1300 : self.state.gridWidth) - otherItem.width;
 
-                    if (overlap > 1) {
-                      var overlapDelta = overlap - otherItem.lastOverlaps[selectedItemId];
-                      if (selectedItem.left < otherItem.left) {
-                        if (overlapDelta > 0) {
-                          self.moveItem(otherItem, otherItem.left - 2, otherItem.top);
-                        } else {
-                          self.moveItem(otherItem, otherItem.left + 2, otherItem.top);
-                        }
-                      } else {
-                        if (overlapDelta > 0) {
-                          self.moveItem(otherItem, otherItem.left + 2, otherItem.top);
-                        } else {
-                          self.moveItem(otherItem, otherItem.left - 2, otherItem.top);
-                        }
-                      }
-                      otherItem.lastOverlaps[selectedItemId] = overlap;
+                    if (selectedItem.left >= otherItem.left + otherItem.width / 2 - 10 &&
+                      selectedItem.left <= otherItem.left + otherItem.width / 2 + 10) {
+                      self.moveItem(otherItem, Math.min(max, Math.max(min, selectedItem.left + selectedItem.width)), otherItem.top, 100);
+                    }
+
+                    if (selectedItem.left + selectedItem.width >= otherItem.left + otherItem.width / 2 - 10 &&
+                      selectedItem.left + selectedItem.width <= otherItem.left + otherItem.width / 2 + 10) {
+                      self.moveItem(otherItem, Math.min(max, Math.max(min, selectedItem.left - otherItem.width)), otherItem.top, 100);
                     }
                   }
                 });
@@ -283,7 +273,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         var startWidth; // define a start width to calculate deltas for multi-resize
         $('.resizable').resizable({
           handles: 'e, w',
-          start: function (event, ui) {
+          start: function(event, ui) {
             var id = ui.originalElement.data('bid');
             var resizingItem = self.state.items[id];
 
@@ -314,7 +304,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             var id = ui.originalElement.data('bid');
             var resizingItem = self.state.items[id];
 
-            $(this).css({left: 0});
+            $(this).css({ left: 0 });
 
             self.moveItem(resizingItem, resizingItem.left + left, resizingItem.top);
           }
@@ -353,7 +343,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         var offset = this.$container.offset();
         var left = e.x - offset.left;
         var top = Math.floor((e.y - offset.top) / this.state.gridHeight) * this.state.gridHeight;
-        
+
         this.addItem({
           resource: data.src,
           title: data.name,
@@ -471,12 +461,12 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  moveItem(item, x, y) {
+  moveItem(item, x, y, dur = 0) {
     if (item) {
       x = (x === undefined) ? item.left : x;
       y = (y === undefined) ? item.top : y;
 
-      TweenLite.set(item.$el[0], { x: x, y: y });
+      TweenLite.to(item.$el[0], dur / 1000, { x: x, y: y });
       item.draggable.update(); // update the draggable position
       item.left = x;
       item.start = item.left * this.state.zoom;
@@ -486,14 +476,14 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   addChannel(channel) {
     var newChannel = Object.assign(
-        {},
-        {
-          $el: undefined,
-          name: "CH" + this.state.channels.length,
-          type: "normal",
-          color: '#00FFFF'
-        },
-        channel
+      {},
+      {
+        $el: undefined,
+        name: "CH" + this.state.channels.length,
+        type: "normal",
+        color: '#00FFFF'
+      },
+      channel
     );
     this.state.channels.push(newChannel);
     this.drawChannels();
@@ -503,14 +493,14 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   addCommonChannel(channel) {
     var newChannel = Object.assign(
-        {},
-        {
-          $el: undefined,
-          name: "CH" + this.state.channels.length,
-          type: "common",
-          color: '#0000FF'
-        },
-        channel
+      {},
+      {
+        $el: undefined,
+        name: "CH" + this.state.channels.length,
+        type: "common",
+        color: '#0000FF'
+      },
+      channel
     );
     this.state.channels.push(newChannel);
     this.drawChannels();
