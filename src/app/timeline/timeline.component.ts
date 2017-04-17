@@ -30,6 +30,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     zoom: 1
   };
 
+  @Input() resources;
   @Input() state;
 
   @Output() itemMoved = new EventEmitter<Object>();
@@ -348,16 +349,14 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       channel.$el[0].ondrop = (e) => {
         e.preventDefault();
 
-        var data = JSON.parse(e.dataTransfer.getData("text"));
+        var data = this.resources[e.dataTransfer.getData("text")];
         var offset = this.$container.offset();
         var left = e.x - offset.left;
         var top = Math.floor((e.y - offset.top) / this.state.gridHeight) * this.state.gridHeight;
-
-        console.log(data.toString());
-
+        
         this.addItem({
-          resource: data.resource,
-          title: data.label,
+          resource: data.src,
+          title: data.name,
           left: left,
           width: 60 * (1 / this.state.zoom),
           channel: Math.floor(top / this.state.gridHeight),
@@ -384,9 +383,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     });
   }
 
-  drag(e, l) {
-    var str = JSON.stringify(l);
-    e.dataTransfer.setData("text", str);
+  drag(e, resourceIndex) {
+    e.dataTransfer.setData("text", resourceIndex);
   }
 
   resizeToLargest() {

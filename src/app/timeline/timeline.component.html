@@ -58,17 +58,11 @@
           <th>Total time</th>
           <th>size</th>
         </tr>
-        <tr draggable="true" (dragstart)="drag($event, {resource: 'assets/img/doc-13-128.png', label: 'logo'})">
-          <td>logo</td>
-          <td>jpg</td>
-          <td>0</td>
-          <td>161K</td>
-        </tr>
-        <tr draggable="true" (dragstart)="drag($event, {resource: 'assets/img/svgexample.svg', label: 'sample svg'})">
-          <td>sample svg</td>
-          <td>svg</td>
-          <td>0</td>
-          <td>161K</td>
+        <tr *ngFor="let resource of resources; let i = index" draggable="true" (dragstart)="drag($event, i)">
+          <td>{{ resource.name }}</td>
+          <td>{{ resource.type }}</td>
+          <td>{{ resource.time }}</td>
+          <td>{{ resource.size }}</td>
         </tr>
       </table>
     </div>

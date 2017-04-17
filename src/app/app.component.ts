@@ -7,6 +7,22 @@ import { TimelineComponent } from './timeline/timeline.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  resources = [
+    {
+      name: 'logo',
+      type: 'png',
+      time: '0',
+      size: '110KB',
+      src: 'assets/img/doc-13-128.png'
+    },
+    {
+      name: 'samplesvg',
+      type: 'svg',
+      time: '0',
+      size: '110KB',
+      src: 'assets/img/svgexample.svg'
+    }
+  ];
   state = {
     zoom: 1,
     channels: [
