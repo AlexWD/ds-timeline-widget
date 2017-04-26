@@ -188,7 +188,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
                   item.draggable.applyBounds({
                     top: 0,
                     left: 0,
-                    width: 1300,
+                    width: 13000,
                     height: self.$container.height()
                   });
                 } else {
@@ -585,6 +585,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         width: this.state.gridWidth + 1
       }
     );
+    this.ruler.api.setScale(this.state.zoom);
   }
 
   selectChannel(i) {

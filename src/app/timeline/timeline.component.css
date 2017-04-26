@@ -84,3 +84,8 @@
   border: 1px solid #454545;
   width: 100%;
 }
+
+.timeline-container {
+  max-width: 1200px;
+  overflow-x: auto;
+}
