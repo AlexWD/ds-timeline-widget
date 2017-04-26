@@ -7,76 +7,128 @@ import { TimelineComponent } from './timeline/timeline.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  resources = [
-    {
-      name: 'logo',
-      type: 'png',
-      time: '0',
-      size: '110KB',
-      src: 'assets/img/doc-13-128.png'
-    },
-    {
-      name: 'samplesvg',
-      type: 'svg',
-      time: '0',
-      size: '110KB',
-      src: 'assets/img/svgexample.svg'
-    }
-  ];
+  resources = {
+    items: [
+      {
+        id: 1,
+        name: 'logo',
+        type: 'png',
+        time: '0',
+        size: '110KB',
+        src: 'assets/img/doc-13-128.png'
+      },
+      {
+        id: 2,
+        name: 'samplesvg',
+        type: 'svg',
+        time: '0',
+        size: '110KB',
+        src: 'assets/img/svgexample.svg'
+      }
+    ],
+    outputs: [
+      {
+        id: 1,
+        name: 'logo',
+        type: 'png',
+        time: '0',
+        size: '110KB',
+        src: 'assets/img/doc-13-128.png'
+      },
+      {
+        id: 2,
+        name: 'samplesvg',
+        type: 'svg',
+        time: '0',
+        size: '110KB',
+        src: 'assets/img/svgexample.svg'
+      }
+    ]
+  };
   state = {
     zoom: 1,
     channels: [
       {
+        id: 1,
         name: 'CH0',
         type: 'normal',
-        color: '#0000FF'
+        color: '#0000FF',
+        selected: false,
       },
       {
+        id: 2,
         name: 'CH1',
         type: 'normal',
-        color: '#0000FF'
+        color: '#0000FF',
+        selected: false
       },
       {
+        id: 3,
         name: 'CH2',
         color: '#0000FF',
-        type: 'common'
+        type: 'common',
+        selected: false
       },
     ],
     outputs: [
       {
+        id: 1,
         name: "Output",
-        color: "#000"
+        color: "#000",
+        selected: false
       }
     ],
     items: [
       {
+        id: 1,
+        type: 'channel',
         resource: "assets/img/doc-13-128.png",
         title: 'Logo_splash',
         start: 0,
         duration: 60,
-        channel: 0,
+        channel: 1,
         selected: false
       },
       {
+        id: 2,
+        type: 'channel',
         resource: "assets/img/doc-13-128.png",
         title: '350x350',
         start: 300,
         duration: 60,
-        channel: 1,
+        channel: 2,
         selected: false
       }
     ]
   }
 
-  itemMoved(state) {
-    console.log("Item moved", state);
+  itemMoved(item) {
+    console.log("Item moved", item);
   }
 
-  channelAdded(state) {
-    console.log("Channel added", state);
+  itemAdded(item) {
+    console.log("Item Added", item);
   }
 
-  itemAdded(state) {
-    console.log("Item Added", state);
+  itemClicked(item) {
+    console.log('Item clicked', item);
   }
+
+  channelAdded(channel) {
+    console.log("Channel added", channel);
+  }
+
+  channelClicked(channel) {
+    console.log("Channel clicked", channel);
+  }
+
+  outputAdded(output) {
+    console.log("Channel added", output);
+  }
+
+  outputClicked(output) {
+    console.log("Channel clicked", output);
+  }
+
+
 }

@@ -15,6 +15,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   ruler = undefined;
 
+  draggingItem;
+
   defaultState = {
     gridWidth: 194 * 4,
     gridHeight: 50,
@@ -35,7 +37,14 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   @Output() itemMoved = new EventEmitter<Object>();
   @Output() itemAdded = new EventEmitter<Object>();
+  @Output() itemClicked = new EventEmitter<Object>();
+
   @Output() channelAdded = new EventEmitter<Object>();
+  @Output() channelClicked = new EventEmitter<Object>();
+
+  @Output() outputAdded = new EventEmitter<Object>();
+  @Output() outputClicked = new EventEmitter<Object>();
+
 
   constructor() { }
 
@@ -75,6 +84,9 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
     // draw channels
     this.drawChannels();
+
+    // draw outputs
+    //this.drawOutputs();
   }
 
   ngAfterViewChecked() {
@@ -87,6 +99,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         var lastOverlap = 0;
 
         item.$el = $("li[data-bid='" + i + "']");
+
+        var container = this.$container;
 
         item.draggable = Draggable.create(item.$el, {
           bounds: self.$container,
@@ -129,6 +143,9 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             $(this.target).addClass('ui-selected');
             e.stopPropagation();
 
+            // emit click event for item
+            self.itemClicked.emit(item);
+
             //when the user presses, we'll create an array ("companions") and populate it with all the OTHER elements that have the ".ui-selected" class applied (excluding the one that's being dragged). We also record their x and y position so that we can apply the delta to it in the onDrag.
             var boxes = $(".box.ui-selected"),
               i = boxes.length;
@@ -158,24 +175,34 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
             TweenLite.killTweensOf(".box");
           },
           onDrag: function() {
-            // update item bounds based on type of channel
-            self.state.items.map((item, idx) => {
-              var channel = self.state.channels[Math.floor(item.top / self.state.gridHeight)];
+            // update item bounds based on type of channel for common channels
+            self.state.items.filter((item) => item.type == 'channel').map((item, idx) => {
+              var channelNum = Math.floor(item.top / self.state.gridHeight);
 
-              if (channel) {
-                item.channel = channel;
+              item.channel = channelNum;
+
+              if (channelNum >= self.state.outputs.length) {
+                var channel = self.state.channels[Math.floor(item.top / self.state.gridHeight) - self.state.outputs.length];
+
+                if (channel && channel.type == "common") {
+                  item.draggable.applyBounds({
+                    top: 0,
+                    left: 0,
+                    width: 1300,
+                    height: self.$container.height()
+                  });
+                } else {
+                  var bounds = {
+                    left: 0,
+                    top: self.state.outputs.length * self.state.gridHeight,
+                    width: self.state.gridWidth,
+                    height: self.state.channels.length * self.state.gridHeight
+                  };
+                  item.draggable.applyBounds(bounds);
+                }
               }
 
-              if (channel && channel.type == "common") {
-                item.draggable.applyBounds({
-                  top: 0,
-                  left: 0,
-                  width: 1300,
-                  height: self.$container.height()
-                });
-              } else {
-                item.draggable.applyBounds(self.$container);
-              }
+
             });
 
             // mutliselect movement
@@ -200,6 +227,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
               self.state.items[companion.selfId].draggable.startDrag(companion.e);
             }
 
+            // switch
             if (self.state.switch) {
               self.state.items.filter(item => item.selected).map((selectedItem) => {
                 self.state.items.filter(item => !item.selected).map((otherItem) => {
@@ -233,7 +261,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         });
 
         item.draggable.addEventListener("dragend", function() {
-          self.itemMoved.emit(self.state);
+          self.itemMoved.emit(item);
         });
 
         // set item initial position
@@ -282,6 +310,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
         // makes GSAP Draggable avoid clicks on the resize handles
         $('.ui-resizable-handle').attr('data-clickable', true);
+
+        this.applyItemBounds();
       }
     });
   }
@@ -296,10 +326,17 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
   drawChannels() {
     this.$container.find(".timeline-row").remove();
 
-    this.state.channels.map((channel, i) => {
+    this.state.outputs.concat(this.state.channels).map((channel, i) => {
+      var type = this.state.channels.indexOf(channel) !== -1 ? "channel" : "output";
+      var resources;
+
+      if (type == "channel") {
+        resources = this.resources.items;
+      } else {
+        resources = this.resources.outputs;
+      }
       // create element for channel and append it to the container
       channel.$el = $("<div/>").css({
-        width: this.state.gridWidth - 1,
         height: this.state.gridHeight - 1,
         top: i * this.state.gridHeight,
         left: 0
@@ -309,7 +346,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       channel.$el[0].ondrop = (e) => {
         e.preventDefault();
 
-        var data = this.resources[e.dataTransfer.getData("text")];
+        var data = resources[e.dataTransfer.getData("text")];
         var offset = this.$container.offset();
         var left = e.x - offset.left;
         var top = Math.floor((e.y - offset.top) / this.state.gridHeight) * this.state.gridHeight;
@@ -317,6 +354,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         this.addItem({
           resource: data.src,
           title: data.name,
+          type: type,
           left: left,
           width: 60 * (1 / this.state.zoom),
           channel: Math.floor(top / this.state.gridHeight),
@@ -327,24 +365,47 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         });
       };
 
-      channel.$el[0].ondragover = function(e) {
-        e.preventDefault();
+      channel.$el[0].ondragover = (e) => {
+        if (type == this.draggingItem) {
+          e.preventDefault();
+        }
       };
     });
 
     //set the container's size to match the grid, and ensure that the box widths/heights reflect the variables above
     this.updateContainerSize();
 
-    // update bounds for all draggable items
+    this.applyItemBounds();
+  }
+
+  applyItemBounds() {
     this.state.items.map((item) => {
       if (item.draggable !== undefined) {
-        item.draggable.applyBounds();
+        if (item.type == 'output') {
+          var bounds = {
+            left: 0,
+            top: 0,
+            width: this.state.gridWidth,
+            height: this.state.outputs.length * this.state.gridHeight
+          };
+          item.draggable.applyBounds(bounds);
+        } else if (item.type == 'channel') {
+          var bounds = {
+            left: 0,
+            top: this.state.outputs.length * this.state.gridHeight,
+            width: this.state.gridWidth,
+            height: this.state.channels.length * this.state.gridHeight
+          };
+          item.draggable.applyBounds(bounds);
+        }
       }
     });
   }
 
-  drag(e, resourceIndex) {
+
+  drag(e, type, resourceIndex) {
     e.dataTransfer.setData("text", resourceIndex);
+    this.draggingItem = type;
   }
 
   resizeToLargest() {
@@ -448,6 +509,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     var newChannel = Object.assign(
       {},
       {
+        id: this.state.channels[this.state.channels.length - 1].id + 1,
         $el: undefined,
         name: "CH" + this.state.channels.length,
         type: "normal",
@@ -458,13 +520,14 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     this.state.channels.push(newChannel);
     this.drawChannels();
 
-    this.channelAdded.emit(this.state);
+    this.channelAdded.emit(newChannel);
   }
 
   addCommonChannel(channel) {
     var newChannel = Object.assign(
       {},
       {
+        id: this.state.channels[this.state.channels.length - 1].id + 1,
         $el: undefined,
         name: "CH" + this.state.channels.length,
         type: "common",
@@ -474,12 +537,15 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     );
     this.state.channels.push(newChannel);
     this.drawChannels();
+
+    this.channelAdded.emit(newChannel);
   }
 
   addOutput(output) {
     var newOutput = Object.assign(
       {},
       {
+        id: this.state.outputs[this.state.outputs.length - 1].id + 1,
         name: "Output",
         color: "#000"
       },
@@ -487,12 +553,21 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     );
 
     this.state.outputs.push(newOutput);
+
+    // move all existing items on channels down one row
+    this.state.items.filter((item) => item.type == 'channel').map((item) => {
+      this.moveItem(item, item.left, item.top + this.state.gridHeight);
+    });
+    this.drawChannels();
+
+    this.outputAdded.emit(newOutput);
   }
 
   addItem(item) {
     var newItem = Object.assign(
       {},
       {
+        id: this.state.items[this.state.items.length - 1].id + 1,
         duration: item.width,
         start: item.left
       },
@@ -500,58 +575,67 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     );
     this.state.items.push(newItem);
 
-    this.itemAdded.emit(this.state);
+    this.itemAdded.emit(newItem);
   }
 
   updateContainerSize() {
     TweenLite.set(
       this.$container, {
-        height: this.state.channels.length * this.state.gridHeight + 1,
+        height: (this.state.channels.length + this.state.outputs.length) * this.state.gridHeight + 1,
         width: this.state.gridWidth + 1
       }
     );
   }
 
   selectChannel(i) {
-    this.state.selectedChannel = this.state.channels[i];
-    this.state.selectedItem = undefined;
-    this.state.selectedOutput = undefined;
+    var channel = this.state.channels[i];
+    this.resetObjectSelection();
+    channel.selected = true;
+    this.channelClicked.emit(channel);
   }
 
   selectItem(item) {
-    this.state.selectedItem = item;
-    this.state.selectedChannel = undefined;
-    this.state.selectedOutput = undefined;
+    //this.resetObjectSelection();
+    item.selected = true;
   }
 
   selectOutput(i) {
-    this.state.selectedOutput = this.state.outputs[i];
-    this.state.selectedChannel = undefined;
-    this.state.selectedItem = undefined;
+    var output = this.state.outputs[i];
+    this.resetObjectSelection();
+    output.selected = true;
+
+    this.outputClicked.emit(output);
   }
 
-  deleteChannel(e) {
-    if (this.state.selectedChannel) {
-      this.state.channels.splice(this.state.channels.indexOf(this.state.selectedChannel), 1);
-      this.state.selectedChannel.$el.remove();
-      this.state.selectedChannel = undefined;
-
-      this.drawChannels();
-    }
+  resetObjectSelection() {
+    this.state.channels
+      .concat(this.state.outputs)
+      .concat(this.state.items).map((o) => {
+      o.selected = false;
+    });
   }
 
-  deleteOutput(e) {
-    if (this.state.selectedOutput) {
-      this.state.outputs.splice(this.state.outputs.indexOf(this.state.selectedOutput), 1);
-      this.state.selectedOutput = undefined;
-    }
+  deleteChannel(i) {
+    var deleted = this.state.channels.splice(i, 1);
+    deleted.$el.remove();
+
+    this.drawChannels();
   }
 
-  deleteItem(e) {
-    if (this.state.selectedItem) {
-      this.state.items.splice(this.state.items.indexOf(this.state.selectedItem), 1);
-      this.state.selectedItem = undefined;
-    }
+  deleteOutput(i) {
+    var deleted = this.state.outputs.splice(i, 1);
+    deleted.$el.remove();
+
+    // move all existing items on channels up one row
+    this.state.items.filter((item) => item.type == 'channel').map((item) => {
+      this.moveItem(item, item.left, item.top - this.state.gridHeight);
+    });
+
+    this.drawChannels();
+  }
+
+  deleteItem(i) {
+    var deleted = this.state.items.splice(i, 1);
   }
 
 }

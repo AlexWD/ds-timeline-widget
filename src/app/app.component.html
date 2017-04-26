@@ -3,6 +3,12 @@
   [state]="state"
 
   (itemAdded)="itemAdded($event)"
-  (channelAdded)="channelAdded($event)"
   (itemMoved)="itemMoved($event)"
+  (itemClicked)="itemClicked($event)"
+
+  (channelAdded)="channelAdded($event)"
+  (channelClicked)="channelClicked($event)"
+
+  (outputAdded)="outputAdded($event)"
+  (outputClicked)="outputClicked($event)"
 ></app-timeline>
