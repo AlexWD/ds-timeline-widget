@@ -597,6 +597,10 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   selectItem(item) {
     //this.resetObjectSelection();
+    this.state.channels
+      .concat(this.state.outputs).map((o) => {
+      o.selected = false;
+    });
     item.selected = true;
   }
 
