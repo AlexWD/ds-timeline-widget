@@ -29,10 +29,10 @@
   </div>
   <div class="row timeline-container">
     <div class="col-xs-1 channel-titles">
-      <div class="channel-title" *ngFor="let output of state.outputs; let i = index" (click)="selectOutput(i)">
+      <div class="channel-title" *ngFor="let output of state.outputs; let i = index" (click)="selectOutput(i)" [class.channel-selected]="output.selected">
         <span class="channel-color" [style.backgroundColor]="output.color"></span> {{ output.name }}
       </div>
-      <div class="channel-title" *ngFor="let channel of state.channels; let i = index" [class.common-channel]="channel.type == 'common'" (click)="selectChannel(i)">
+      <div class="channel-title" *ngFor="let channel of state.channels; let i = index" [class.common-channel]="channel.type == 'common'" [class.channel-selected]="channel.selected" (click)="selectChannel(i)">
         <span class="channel-color" [style.backgroundColor]="channel.color"></span> {{ channel.name }}
       </div>
     </div>

@@ -69,6 +69,10 @@
   display: inline-block;
 }
 
+.channel-selected {
+  background: #656565;
+}
+
 .timeline {
   padding-left: 0px;
 }
