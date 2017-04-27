@@ -197,7 +197,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
                   var bounds = {
                     left: 0,
                     top: self.state.outputs.length * self.state.gridHeight,
-                    width: self.state.gridWidth,
+                    width: self.state.gridWidth * (1 / this.state.zoom),
                     height: self.state.channels.length * self.state.gridHeight
                   };
                   item.draggable.applyBounds(bounds);
@@ -387,7 +387,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
           var bounds = {
             left: 0,
             top: 0,
-            width: this.state.gridWidth,
+            width: this.state.gridWidth * (1 / this.state.zoom),
             height: this.state.outputs.length * this.state.gridHeight
           };
           item.draggable.applyBounds(bounds);
@@ -395,7 +395,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
           var bounds = {
             left: 0,
             top: this.state.outputs.length * this.state.gridHeight,
-            width: this.state.gridWidth,
+            width: this.state.gridWidth * (1 / this.state.zoom),
             height: this.state.channels.length * this.state.gridHeight
           };
           item.draggable.applyBounds(bounds);
@@ -476,6 +476,9 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       item.width = item.duration * zoomFactor;
       this.moveItem(item, item.start * zoomFactor, item.top);
     });
+
+    this.updateContainerSize();
+    this.applyItemBounds();
 
     //this.ruler.api.setScale(this.state.zoom);
   }
@@ -584,7 +587,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     TweenLite.set(
       this.$container, {
         height: (this.state.channels.length + this.state.outputs.length) * this.state.gridHeight + 1,
-        width: this.state.gridWidth + 1
+        width: (this.state.gridWidth + 1) * (1 / this.state.zoom)
       }
     );
     //this.ruler.api.setScale(this.state.zoom);

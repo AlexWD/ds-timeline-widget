@@ -31,7 +31,7 @@
     </div>
     <div class="col-xs-11 timeline">
       <app-timeline-ruler
-        width="{{ state.gridWidth }}"
+        width="{{ state.gridWidth * (1 / this.state.zoom) }}"
         height="50"
         scale="{{ state.zoom / 10}}"
       >
