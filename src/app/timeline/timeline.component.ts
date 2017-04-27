@@ -182,7 +182,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
               var channelNum = Math.floor(item.top / self.state.gridHeight);
 
               item.channel = channelNum;
-
+              
               if (channelNum >= self.state.outputs.length) {
                 var channel = self.state.channels[Math.floor(item.top / self.state.gridHeight) - self.state.outputs.length];
 
@@ -197,7 +197,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
                   var bounds = {
                     left: 0,
                     top: self.state.outputs.length * self.state.gridHeight,
-                    width: self.state.gridWidth * (1 / this.state.zoom),
+                    width: self.state.gridWidth * (1 / self.state.zoom),
                     height: self.state.channels.length * self.state.gridHeight
                   };
                   item.draggable.applyBounds(bounds);
