@@ -6,11 +6,13 @@ import { AlertModule } from 'ng2-bootstrap';
 
 import { AppComponent } from './app.component';
 import { TimelineComponent } from './timeline/timeline.component';
+import { TimelineRulerComponent } from './timeline-ruler/timeline-ruler.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TimelineComponent
+    TimelineComponent,
+    TimelineRulerComponent
   ],
   imports: [
     BrowserModule,

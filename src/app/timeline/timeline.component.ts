@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, AfterViewChecked, EventEmitter, Output } from '@angular/core';
 
+import { TimelineRulerComponent } from '../timeline-ruler/timeline-ruler.component';
+
 declare let $: any;
 declare let Draggable: any;
 declare let TweenLite: any;
@@ -18,7 +20,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
   draggingItem;
 
   defaultState = {
-    gridWidth: 194 * 4,
+    gridWidth: 1776,
     gridHeight: 50,
     items: [],
     channels: [],
@@ -67,20 +69,20 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       }
     });
 
-    this.ruler = new ruler({
-      container: document.querySelector('.ruler'),// reference to DOM element to apply rulers on
-      rulerHeight: 50, // thickness of ruler
-      fontFamily: 'arial',// font for points
-      fontSize: '10px',
-      cornerSides: [],
-      strokeStyle: 'black',
-      lineWidth: 1,
-      enableMouseTracking: false,
-      enableToolTip: false,
-      sides: ['top']
-    });
-
-    this.ruler.api.setScale(this.state.zoom);
+    // this.ruler = new ruler({
+    //   container: document.querySelector('.ruler'),// reference to DOM element to apply rulers on
+    //   rulerHeight: 50, // thickness of ruler
+    //   fontFamily: 'arial',// font for points
+    //   fontSize: '10px',
+    //   cornerSides: [],
+    //   strokeStyle: 'black',
+    //   lineWidth: 1,
+    //   enableMouseTracking: false,
+    //   enableToolTip: false,
+    //   sides: ['top']
+    // });
+    //
+    // this.ruler.api.setScale(this.state.zoom);
 
     // draw channels
     this.drawChannels();
@@ -475,7 +477,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
       this.moveItem(item, item.start * zoomFactor, item.top);
     });
 
-    this.ruler.api.setScale(this.state.zoom);
+    //this.ruler.api.setScale(this.state.zoom);
   }
 
   toggleFrozen(e) {
@@ -585,7 +587,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         width: this.state.gridWidth + 1
       }
     );
-    this.ruler.api.setScale(this.state.zoom);
+    //this.ruler.api.setScale(this.state.zoom);
   }
 
   selectChannel(i) {
