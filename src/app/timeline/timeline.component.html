@@ -18,11 +18,11 @@
       <option value="20">20 : 10</option>
       <option value="40">40 : 10</option>
     </select>
-    Timeline Length <input type="number" [(ngModel)]="state.gridWidth" (change)="updateContainerSize()" />
+    Timeline Length <input type="text" class="timeline-length" value="1:00:00" />
   </div>
   <div class="row" style="margin-left: 83px;">
     <app-timeline-ruler
-      width="{{ state.gridWidth * (1 / this.state.zoom) }}"
+      width="{{ state.gridWidth }}"
       height="50"
       position="{{ scrollPosition }}"
       scale="{{ state.zoom / 10}}"

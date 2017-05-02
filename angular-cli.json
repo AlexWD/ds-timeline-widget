@@ -20,10 +20,12 @@
       "styles": [
         "styles.css",
         "../node_modules/bootstrap/dist/css/bootstrap.min.css",
-        "assets/css/ruler.css"
+        "assets/css/ruler.css",
+        "assets/css/jquery.timepicker.min.css"
       ],
       "scripts": [
-        "../src/assets/js/ruler.js"
+        "../src/assets/js/ruler.js",
+        "../src/assets/js/jquery.timepicker.min.js"
       ],
       "environments": {
         "source": "environments/environment.ts",

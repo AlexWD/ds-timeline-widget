@@ -102,6 +102,31 @@ export class AppComponent {
     ]
   }
 
+  constructor() {
+    // for (let i = 0; i < 15; ++i) {
+    //   this.state.channels.push({
+    //     id: 4 + i,
+    //     name: 'CH2',
+    //     color: '#0000FF',
+    //     type: 'normal',
+    //     selected: false
+    //   });
+    // }
+    // for (let i = 0; i < 100; ++i) {
+    //   this.state.items.push({
+    //     id: 2,
+    //     type: 'channel',
+    //     resource: "assets/img/doc-13-128.png",
+    //     title: '350x350',
+    //     start: Math.floor(Math.random() * 20000),
+    //     duration: Math.floor(Math.random() * 500),
+    //     channel: 1 + Math.floor(Math.random() * 18),
+    //     selected: false
+    //   });
+    // }
+
+  }
+
   itemMoved(item) {
     console.log("Item moved", item);
   }

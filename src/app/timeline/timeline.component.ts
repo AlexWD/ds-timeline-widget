@@ -20,7 +20,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
   scrollPosition = 0;
 
   defaultState = {
-    gridWidth: 1776,
+    gridWidth: 36000,
     gridHeight: 50,
     items: [],
     channels: [],
@@ -54,6 +54,15 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
     this.state = Object.assign({}, this.defaultState, this.state);
 
     this.$container = $('#container');
+
+    // initialize timeline length
+    $('.timeline-length').timepicker({ 'timeFormat': 'H:i:s' });
+    $('.timeline-length').change((e) => {
+      var parts = e.target.value.split(":");
+      var duration = parseInt(parts[0]) * 60 * 60 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+      this.state.gridWidth = duration * (10 / this.state.zoom);
+      this.updateContainerSize();
+    });
 
     // initialize item positions
     this.state.items.map((item) => {
@@ -329,14 +338,14 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
         left: 0
       }).addClass('timeline-row').appendTo(this.$container);
 
-      // add ondrop event listener for accepting item drops
+      //add ondrop event listener for accepting item drops
       channel.$el[0].ondrop = (e) => {
         e.preventDefault();
 
         var data = resources[e.dataTransfer.getData("text")];
         var offset = this.$container.offset();
         var left = e.x - offset.left;
-        var top = Math.floor((e.y - offset.top) / this.state.gridHeight) * this.state.gridHeight;
+        var top = i * this.state.gridHeight;
 
         this.addItem({
           resource: data.src,
@@ -391,6 +400,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
   onScroll(e) {
     this.scrollPosition = e.target.scrollLeft;
+    console.log('on scroll');
   }
 
   drag(e, type, resourceIndex) {
