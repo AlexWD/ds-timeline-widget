@@ -46,6 +46,7 @@ export class AppComponent {
     ]
   };
   state = {
+    duration: 3600,
     zoom: 1,
     channels: [
       {

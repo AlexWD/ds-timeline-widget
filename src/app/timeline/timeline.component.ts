@@ -20,6 +20,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
   scrollPosition = 0;
 
   defaultState = {
+    duration: 3600,
     gridWidth: 36000,
     gridHeight: 50,
     items: [],
@@ -55,19 +56,21 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
 
     this.$container = $('#container');
 
-    // initialize timeline length
+    // initialize timeline length input
     $('.timeline-length').timepicker({ 'timeFormat': 'H:i:s' });
     $('.timeline-length').change((e) => {
       var parts = e.target.value.split(":");
       var duration = parseInt(parts[0]) * 60 * 60 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-      this.state.gridWidth = duration * (10 / this.state.zoom);
+      this.state.duration = duration;
       this.updateContainerSize();
     });
 
+
+
     // initialize item positions
     this.state.items.map((item) => {
-      item.left = item.start * (1 / this.state.zoom);
-      item.width = item.duration * (1 / this.state.zoom);
+      item.left = item.start * (10 / this.state.zoom);
+      item.width = item.duration * (10 / this.state.zoom);
       item.top = item.channel * this.state.gridHeight;
     });
 
@@ -582,10 +585,11 @@ export class TimelineComponent implements OnInit, AfterViewChecked {
   }
 
   updateContainerSize() {
+    this.state.gridWidth = this.state.duration * (10 / this.state.zoom);
     TweenLite.set(
       this.$container, {
         height: (this.state.channels.length + this.state.outputs.length) * this.state.gridHeight + 1,
-        width: (this.state.gridWidth + 1) * (1 / this.state.zoom)
+        width: this.state.gridWidth
       }
     );
     //this.ruler.api.setScale(this.state.zoom);
