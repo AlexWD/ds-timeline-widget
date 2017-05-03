@@ -85,7 +85,7 @@ export class AppComponent {
         type: 'channel',
         resource: "assets/img/doc-13-128.png",
         title: 'Logo_splash',
-        start: 0,
+        start: 10,
         duration: 60,
         channel: 1,
         selected: false
