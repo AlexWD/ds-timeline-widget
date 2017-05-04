@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { TimelineComponent } from './timeline/timeline.component';
+const { Map } = require('immutable');
 
 @Component({
   selector: 'app-root',
@@ -45,7 +46,7 @@ export class AppComponent {
       }
     ]
   };
-  state = {
+  state = Map({
     duration: 3600,
     zoom: 1,
     channels: [
@@ -101,7 +102,7 @@ export class AppComponent {
         selected: false
       }
     ]
-  }
+  });
 
   constructor() {
     // for (let i = 0; i < 15; ++i) {
@@ -125,6 +126,17 @@ export class AppComponent {
     //     selected: false
     //   });
     // }
+    // 
+    // setTimeout(() => {
+    //   console.log("Adding new channel");
+    //   this.state.channels.push({
+    //     id: 4,
+    //       name: 'CH3',
+    //       color: '#0000FF',
+    //       type: 'normal',
+    //       selected: false
+    //     });
+    // }, 15 * 1000);
 
   }
 
