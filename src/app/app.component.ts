@@ -51,21 +51,21 @@ export class AppComponent {
     zoom: 1,
     channels: [
       {
-        id: 1,
+        id: 5,
         name: 'CH0',
         type: 'normal',
         color: '#0000FF',
         selected: false,
       },
       {
-        id: 2,
+        id: 7,
         name: 'CH1',
         type: 'normal',
         color: '#0000FF',
         selected: false
       },
       {
-        id: 3,
+        id: 8,
         name: 'CH2',
         color: '#0000FF',
         type: 'common',
@@ -73,12 +73,12 @@ export class AppComponent {
       },
     ],
     outputs: [
-      {
-        id: 1,
-        name: "Output",
-        color: "#000",
-        selected: false
-      }
+      // {
+      //   id: 1,
+      //   name: "Output",
+      //   color: "#000",
+      //   selected: false
+      // }
     ],
     items: [
       {
@@ -88,7 +88,7 @@ export class AppComponent {
         title: 'Logo_splash',
         start: 10,
         duration: 60,
-        channel: 1,
+        channel: 5,
         selected: false
       },
       {
@@ -98,7 +98,7 @@ export class AppComponent {
         title: '350x350',
         start: 300,
         duration: 60,
-        channel: 2,
+        channel: 8,
         selected: false
       }
     ]
@@ -126,7 +126,7 @@ export class AppComponent {
     //     selected: false
     //   });
     // }
-    // 
+    //
     // setTimeout(() => {
     //   console.log("Adding new channel");
     //   this.state.channels.push({
