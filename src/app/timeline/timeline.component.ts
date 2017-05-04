@@ -521,7 +521,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
     var newChannel = Object.assign(
       {},
       {
-        id: this.state.channels[this.state.channels.length - 1].id + 1,
+        id: -1,
         $el: undefined,
         name: "CH" + this.state.channels.length,
         type: "normal",
@@ -540,7 +540,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
     var newChannel = Object.assign(
       {},
       {
-        id: this.state.channels[this.state.channels.length - 1].id + 1,
+        id: -1,
         $el: undefined,
         name: "CH" + this.state.channels.length,
         type: "common",
@@ -559,7 +559,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
     var newOutput = Object.assign(
       {},
       {
-        id: this.state.outputs[this.state.outputs.length - 1].id + 1,
+        id: -1,
         name: "Output",
         color: "#000"
       },
@@ -582,7 +582,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
     var newItem = Object.assign(
       {},
       {
-        id: this.state.items[this.state.items.length - 1].id + 1,
+        id: -1,
         duration: item.width,
         start: item.left
       },
