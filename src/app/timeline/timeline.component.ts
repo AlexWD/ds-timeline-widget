@@ -133,7 +133,10 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
                 });
               }
 
-              return endValue;
+              var timeValue = Math.round(endValue * self.state.zoom / 10);
+
+
+              return timeValue * (10 / self.state.zoom);
             }
           },
           onPress: function(e) {
