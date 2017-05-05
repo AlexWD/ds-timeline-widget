@@ -60,7 +60,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
   constructor() { }
 
   ngOnInit() {
-
     // initialize timeline length input
     $('.timeline-length').timepicker({ 'timeFormat': 'H:i:s' });
     $('.timeline-length').change((e) => {
@@ -299,8 +298,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
             // resizingItem.duration = newWidth * (self.state.zoom / 10);
             // var widthDelta = newWidth - startWidth;
 
-
-
             // move any companions
             self.state.items.filter((item) => item.selected).map((selectedItem) => {
               if (selectedItem != resizingItem) {
@@ -451,6 +448,11 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
 
   closeGaps() {
     var channel;
+    this.state.channels.concat(this.state.outputs).map((c) => {
+      if (c.selected) {
+        channel = c.id;
+      }
+    });
     for (var i = 0; i < this.state.items.length; ++i) {
       var item = this.state.items[i];
       if (item.selected) {
@@ -667,9 +669,11 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
   resetObjectSelection() {
     this.state.channels
       .concat(this.state.outputs)
-      .concat(this.state.items).map((o) => {
+      .map((o) => {
         o.selected = false;
       });
+
+    this.resetSelection();
   }
 
   deleteChannel(i) {
