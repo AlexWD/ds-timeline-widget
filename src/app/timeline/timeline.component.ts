@@ -508,6 +508,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
       TweenLite.to(item.$el[0], dur / 1000, { x: x, y: y });
       item.draggable.update(); // update the draggable position
       item.left = x;
+      item.start = item.left * this.state.zoom / 10;
       item.top = y;
     }
   }
@@ -642,14 +643,14 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
   }
 
   deleteChannel(i) {
-    var deleted = this.state.channels.splice(i, 1);
+    var deleted = this.state.channels.splice(i, 1)[0];
     deleted.$el.remove();
 
     this.drawChannels();
   }
 
   deleteOutput(i) {
-    var deleted = this.state.outputs.splice(i, 1);
+    var deleted = this.state.outputs.splice(i, 1)[0];
     deleted.$el.remove();
 
     // move all existing items on channels up one row
@@ -661,7 +662,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
   }
 
   deleteItem(i) {
-    var deleted = this.state.items.splice(i, 1);
+    var deleted = this.state.items.splice(i, 1)[0];
   }
 
 }
