@@ -133,9 +133,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
                 });
               }
 
+              // only allow objects to stop at positions that represent whole numbers of seconds
               var timeValue = Math.round(endValue * self.state.zoom / 10);
-
-
               return timeValue * (10 / self.state.zoom);
             }
           },
@@ -279,15 +278,23 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
             var resizingItem = self.state.items[id];
 
             startWidth = resizingItem.width;
+            console.log('start: ' + startWidth);
           },
-          create: function(event, ui) { },
           resize: function(event, ui) {
+            // var newWidth = Math.round(ui.size.width / 10) * 10;
+            // $(this).width(newWidth);
             var id = ui.originalElement.data('bid');
             var resizingItem = self.state.items[id];
+
             resizingItem.width = ui.size.width;
             resizingItem.duration = ui.size.width * self.state.zoom / 10;
-
             var widthDelta = resizingItem.width - startWidth;
+
+            // resizingItem.width = newWidth;
+            // resizingItem.duration = newWidth * (self.state.zoom / 10);
+            // var widthDelta = newWidth - startWidth;
+
+
 
             // move any companions
             self.state.items.filter((item) => item.selected).map((selectedItem) => {
@@ -296,6 +303,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
                 selectedItem.duration = selectedItem.width * self.state.zoom / 10;
               }
             });
+            console.log('newWidth: ' + resizingItem.width);
 
             startWidth = resizingItem.width;
           },
@@ -309,7 +317,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
 
             self.moveItem(resizingItem, resizingItem.left + left, resizingItem.top);
 
-            self.itemResized.emit(resizingItem);
+            //self.itemResized.emit(resizingItem);
             console.log("Item resized: " + resizingItem);
           }
         });

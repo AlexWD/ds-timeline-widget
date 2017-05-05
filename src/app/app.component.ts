@@ -87,7 +87,7 @@ export class AppComponent {
         resource: "assets/img/doc-13-128.png",
         title: 'Logo_splash',
         start: 0,
-        duration: 11,
+        duration: 10,
         channel: 5,
         selected: false
       },
@@ -97,7 +97,7 @@ export class AppComponent {
         resource: "assets/img/doc-13-128.png",
         title: '350x350',
         start: 0,
-        duration: 11,
+        duration: 10,
         channel: 7,
         selected: false
       }
