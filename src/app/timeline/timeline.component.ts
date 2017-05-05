@@ -51,6 +51,11 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
   @Output() outputAdded = new EventEmitter<Object>();
   @Output() outputClicked = new EventEmitter<Object>();
 
+  @Output() closedGaps = new EventEmitter<Object>();
+  @Output() resizedToLargest = new EventEmitter<Object>();
+  @Output() alignedLeft = new EventEmitter<Object>();
+  @Output() alignedRight = new EventEmitter<Object>();
+
 
   constructor() { }
 
@@ -432,12 +437,16 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
       return Math.max(accum, item.width);
     }, 0);
 
-    this.state.items.filter(item => item.selected)
+    var resizedItems = this.state.items.filter(item => item.selected)
       .map((item) => {
         item.width = largest;
         item.duration = largest * this.state.zoom / 10;
         item.$el.css({ width: largest });
+        return item;
       });
+
+    this.resizedToLargest.emit(resizedItems);
+    console.log("Resized to largest", resizedItems);
   }
 
   closeGaps() {
@@ -462,6 +471,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
         this.moveItem(item, nextStartPos, item.top);
         nextStartPos += item.width;
       });
+      this.closedGaps.emit(groupedItems);
+      console.log("Closed gaps", groupedItems);
     }
   }
 
@@ -469,20 +480,28 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
     var leftAlign = this.state.items.filter((item) => item.selected)
       .reduce((accum, item) => Math.min(accum, item.left), Infinity);
 
-    this.state.items.filter(item => item.selected)
+    var alignedItems = this.state.items.filter(item => item.selected)
       .map((item, i) => {
-        this.moveItem(item, leftAlign, item.top)
+        this.moveItem(item, leftAlign, item.top);
+        return item;
       });
+
+    this.alignedLeft.emit(alignedItems);
+    console.log("Aligned Left", alignedItems);
   }
 
   alignRight() {
     var rightAlign = this.state.items.filter((item) => item.selected)
       .reduce((accum, item) => Math.max(accum, item.left + item.width), 0);
 
-    this.state.items.filter(item => item.selected)
+    var alignedItems = this.state.items.filter(item => item.selected)
       .map((item, i) => {
-        this.moveItem(item, rightAlign - item.width, item.top)
+        this.moveItem(item, rightAlign - item.width, item.top);
+        return item;
       });
+
+    this.alignedRight.emit(alignedItems);
+    console.log("Aligned Right", alignedItems);
   }
 
   changeZoom(e) {
