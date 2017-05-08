@@ -186,29 +186,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
             TweenLite.killTweensOf(".box");
           },
           onDrag: function() {
-            // update item bounds based on type of channel for common channels
-            self.state.items.filter((item) => item.type == 'channel').map((item, idx) => {
-              var newChannel = self.state.channels.filter((c) => c.top == item.top)[0];
-
-              item.channel = newChannel.id;
-
-              if (newChannel && newChannel.type == "common") {
-                item.draggable.applyBounds({
-                  top: 0,
-                  left: 0,
-                  width: 13000,
-                  height: self.$container.height()
-                });
-              } else {
-                var bounds = {
-                  left: 0,
-                  top: self.state.outputs.length * self.state.gridHeight,
-                  width: self.state.gridWidth,
-                  height: self.state.channels.length * self.state.gridHeight
-                };
-                item.draggable.applyBounds(bounds);
-              }
-            });
 
             // mutliselect movement
             var i = companions.length,
@@ -263,6 +240,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
           item.left = this._gsTransform.x;
           item.start = item.left * self.state.zoom / 10;
           item.top = this._gsTransform.y;
+
+          self.updateItemChannel(item);
         });
 
         item.draggable.addEventListener("dragend", function() {
@@ -408,13 +387,22 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
           };
           item.draggable.applyBounds(bounds);
         } else if (item.type == 'channel') {
-          var bounds = {
-            left: 0,
-            top: this.state.outputs.length * this.state.gridHeight,
-            width: this.state.gridWidth,
-            height: this.state.channels.length * this.state.gridHeight
-          };
-          item.draggable.applyBounds(bounds);
+          if (this.getChannelById(item.channel).type == "common") {
+            item.draggable.applyBounds({
+              top: 0,
+              left: 0,
+              width: 13000,
+              height: this.$container.height()
+            });
+          } else {
+            var bounds = {
+              left: 0,
+              top: this.state.outputs.length * this.state.gridHeight,
+              width: this.state.gridWidth,
+              height: this.state.channels.length * this.state.gridHeight
+            };
+            item.draggable.applyBounds(bounds);
+          }
         }
       }
     });
@@ -532,6 +520,14 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
     }
   }
 
+  updateItemChannel(item) {
+    var newChannel = this.state.channels.filter((c) => c.top == item.top)[0];
+    if (newChannel) {
+      item.channel = newChannel.id;
+      this.applyItemBounds();
+    }
+  }
+
   moveItem(item, x, y, dur = 0) {
     if (item) {
       x = (x === undefined) ? item.left : x;
@@ -542,6 +538,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
       item.left = x;
       item.start = item.left * this.state.zoom / 10;
       item.top = y;
+
+      this.updateItemChannel(item);
     }
   }
 
