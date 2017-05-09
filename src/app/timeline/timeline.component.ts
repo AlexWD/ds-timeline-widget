@@ -146,13 +146,11 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
             }
           },
           onPress: function(e) {
-            // select item
-            self.selectItem(item);
-
             // mutli-select functionality
             if (!e.ctrlKey && $(".box.ui-selected").length == 1) {
               self.resetSelection();
             }
+            self.selectItem(item);
             $(this.target).addClass('ui-selected');
             e.stopPropagation();
 
