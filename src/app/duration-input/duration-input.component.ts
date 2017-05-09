@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-duration-input',
@@ -16,14 +16,27 @@ export class DurationInputComponent implements OnInit {
   focusedItem;
   timer;
 
+  @Input() duration;
+
+  @Output() change = new EventEmitter<Object>();
+
   constructor() { }
 
   ngOnInit() {
+    var totalSeconds = this.duration;
+    this.hours = Math.floor(totalSeconds / 3600);
+    totalSeconds -= this.hours * 3600;
+    this.minutes = Math.floor(totalSeconds / 60);
+    totalSeconds -= this.minutes * 60;
+    this.seconds = totalSeconds;
+
+    this.updateDisplay();
   }
 
   increment() {
-    console.log('increment called');
-    this.focusedItem.focus();
+    if (this.focusedItem) {
+      this.focusedItem.focus();
+    }
     switch (this.focus) {
       case "hour":
         if (++this.hours > 24) {
@@ -82,6 +95,7 @@ export class DurationInputComponent implements OnInit {
     this.secondsOutput = this.padLeft(this.seconds);
     this.minutesOutput = this.padLeft(this.minutes);
     this.hoursOutput = this.padLeft(this.hours);
+    this.change.emit(this.hours * 60 * 60 + this.minutes * 60 + this.seconds);
   }
 
   setFocus(event, field) {
@@ -108,10 +122,10 @@ export class DurationInputComponent implements OnInit {
   }
 
   padLeft(n){
-  	n=n.toString();
-      n= "00".substring(0,2-n.length)+""+n.toString() ;
-      n=n.substring(n.length-2);
-      return n;
+  	n = n.toString();
+    n = "00".substring(0, 2-n.length) + "" + n.toString();
+    n = n.substring(n.length-2);
+    return n;
   }
 
 

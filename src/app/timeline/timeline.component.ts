@@ -60,15 +60,6 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
   constructor() { }
 
   ngOnInit() {
-    // initialize timeline length input
-    $('.timeline-length').timepicker({ 'timeFormat': 'H:i:s' });
-    $('.timeline-length').change((e) => {
-      var parts = e.target.value.split(":");
-      var duration = parseInt(parts[0]) * 60 * 60 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-      this.state.duration = duration;
-      this.updateContainerSize();
-    });
-
     // reset item selection when the container is clicked
     this.$container.click((e) => {
       if (!$(e.target).hasClass('box') && !$(e.target).hasClass('box-image') && !$(e.target).hasClass('item-title')) {
@@ -381,6 +372,11 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
         this.applyItemBounds();
       }
     });
+  }
+
+  timelineDurationChange(dur) {
+    this.state.duration = dur;
+    this.updateContainerSize();
   }
 
   resetSelection() {
