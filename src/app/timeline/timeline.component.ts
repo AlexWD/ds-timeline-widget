@@ -95,6 +95,8 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
       item.left = item.start * (10 / this.state.zoom);
       item.width = item.duration * (10 / this.state.zoom);
       item.top = this.getChannelById(item.channel).top;
+      item.overlapsLeft = [];
+      item.overlapsRight = [];
     });
   }
 
@@ -211,26 +213,125 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
 
             // switch
             if (self.state.switch) {
+              // self.state.items.filter(item => item.selected).map((selectedItem) => {
+              //   self.state.items.filter(item => !item.selected).map((otherItem) => {
+              //     if (selectedItem.channel == otherItem.channel) {
+              //       var selectedItemId = self.state.items.indexOf(selectedItem);
+              //
+              //       var min = 0,
+              //         max = (selectedItem.channel.type == "common" ? 13000 : self.state.gridWidth) - otherItem.width;
+              //
+              //       if (selectedItem.left >= otherItem.left + otherItem.width / 2 - 10 &&
+              //         selectedItem.left <= otherItem.left + otherItem.width / 2 + 10) {
+              //         self.moveItem(otherItem, Math.min(max, Math.max(min, selectedItem.left + selectedItem.width)), otherItem.top, 100);
+              //       }
+              //
+              //       if (selectedItem.left + selectedItem.width >= otherItem.left + otherItem.width / 2 - 10 &&
+              //         selectedItem.left + selectedItem.width <= otherItem.left + otherItem.width / 2 + 10) {
+              //         self.moveItem(otherItem, Math.min(max, Math.max(min, selectedItem.left - otherItem.width)), otherItem.top, 100);
+              //       }
+              //     }
+              //   });
+              // });
+
               self.state.items.filter(item => item.selected).map((selectedItem) => {
                 self.state.items.filter(item => !item.selected).map((otherItem) => {
                   if (selectedItem.channel == otherItem.channel) {
-                    var selectedItemId = self.state.items.indexOf(selectedItem);
-
-                    var min = 0,
-                      max = (selectedItem.channel.type == "common" ? 13000 : self.state.gridWidth) - otherItem.width;
-
-                    if (selectedItem.left >= otherItem.left + otherItem.width / 2 - 10 &&
-                      selectedItem.left <= otherItem.left + otherItem.width / 2 + 10) {
-                      self.moveItem(otherItem, Math.min(max, Math.max(min, selectedItem.left + selectedItem.width)), otherItem.top, 100);
+                    if (selectedItem.overlapsLeft == undefined) {
+                      selectedItem.overlapsLeft = [];
                     }
 
-                    if (selectedItem.left + selectedItem.width >= otherItem.left + otherItem.width / 2 - 10 &&
-                      selectedItem.left + selectedItem.width <= otherItem.left + otherItem.width / 2 + 10) {
-                      self.moveItem(otherItem, Math.min(max, Math.max(min, selectedItem.left - otherItem.width)), otherItem.top, 100);
+                    if (selectedItem.overlapsRight == undefined) {
+                      selectedItem.overlapsRight = [];
+                    }
+
+                    if (selectedItem.draggable.hitTest(otherItem.$el)) {
+                      if (selectedItem.left <= otherItem.left &&
+                        selectedItem.overlapsLeft.indexOf(otherItem) === -1 &&
+                        selectedItem.overlapsRight.indexOf(otherItem) === -1
+                      ) {
+                        console.log('added item to leftoverlaps');
+                        selectedItem.overlapsLeft.push(otherItem);
+                      }
+                      if (selectedItem.left > otherItem.left &&
+                        selectedItem.overlapsRight.indexOf(otherItem) === -1 &&
+                        selectedItem.overlapsLeft.indexOf(otherItem) === -1) {
+                        console.log('added item to rightoverlaps');
+                        selectedItem.overlapsRight.push(otherItem);
+                      }
                     }
                   }
                 });
+                selectedItem.overlapsLeft.map((otherItem, idx) => {
+                  if (!selectedItem.draggable.hitTest(otherItem.$el, "5%")) {
+                    selectedItem.overlapsLeft.splice(idx, 1);
+                  } else {
+                    console.log('still hitting it');
+                  }
+                });
+                selectedItem.overlapsRight.map((otherItem, idx) => {
+                  if (!selectedItem.draggable.hitTest(otherItem.$el, "5%")) {
+                    selectedItem.overlapsRight.splice(idx, 1);
+                    console.log('still hitting it');
+                  }
+                });
               });
+
+              self.state.items.filter(item => item.selected).map((selectedItem) => {
+                selectedItem.overlapsLeft.map(otherItem => {
+                        var min = 0,
+                          max = (self.getChannelById(selectedItem.channel).type == "common" ? 13000 : self.state.gridWidth) - otherItem.width;
+
+                  if (selectedItem.left + selectedItem.width >= otherItem.left + otherItem.width - 10 &&
+                    selectedItem.left + selectedItem.width <= otherItem.left + otherItem.width + 10) {
+                      console.log('from left fire');
+                    self.moveItem(otherItem, Math.min(max, Math.max(min, otherItem.left - selectedItem.width)), otherItem.top, 100);
+                    selectedItem.overlapsLeft = [];
+                  }
+                });
+
+                selectedItem.overlapsRight.map(otherItem => {
+                  var min = 0,
+                    max = (self.getChannelById(selectedItem.channel).type == "common" ? 13000 : self.state.gridWidth) - otherItem.width;
+                  if (selectedItem.left >= otherItem.left - 10 &&
+                    selectedItem.left <= otherItem.left + 10) {
+                      console.log('from right fire');
+
+                    var newPos = otherItem.left + selectedItem.width;
+
+                    self.moveItem(otherItem, Math.min(max, Math.max(min, newPos)), otherItem.top, 100);
+                    selectedItem.overlapsRight = [];
+                  }
+                });
+              });
+
+              // self.state.items.filter(item => item.selected).map((selectedItem) => {
+              //   self.state.items.filter(item => !item.selected).map((otherItem) => {
+              //     if (selectedItem.channel == otherItem.channel) {
+              //       var selectedItemId = self.state.items.indexOf(selectedItem);
+              //
+              //       var min = 0,
+              //         max = (self.getChannelById(selectedItem.channel).type == "common" ? 13000 : self.state.gridWidth) - otherItem.width;
+              //
+              //       if (selectedItem.left >= otherItem.left - 10 &&
+              //         selectedItem.left <= otherItem.left + 10 &&
+              //         selectedItem.left + selectedItem.width >= otherItem.left + otherItem.width ) {
+              //           console.log('from right fire');
+              //
+              //         var newPos = otherItem.left + selectedItem.width;
+              //
+              //         self.moveItem(otherItem, Math.min(max, Math.max(min, newPos)), otherItem.top, 100);
+              //       }
+              //
+              //       if (selectedItem.left + selectedItem.width >= otherItem.left + otherItem.width - 10 &&
+              //         selectedItem.left + selectedItem.width <= otherItem.left + otherItem.width + 10 &&
+              //         selectedItem.left <= otherItem.left) {
+              //           console.log('from left fire');
+              //         self.moveItem(otherItem, Math.min(max, Math.max(min, otherItem.left - selectedItem.width)), otherItem.top, 100);
+              //       }
+              //     }
+              //   });
+              // });
             }
           }
         })[0];
@@ -610,7 +711,9 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
       {
         id: -1,
         duration: item.width,
-        start: item.left
+        start: item.left,
+        overlapsLeft: [],
+        overlapsRight: []
       },
       item
     );
