@@ -148,6 +148,10 @@ export class AppComponent {
     console.log("Item Added", item);
   }
 
+  itemResized(item) {
+    console.log("Item resized", item);
+  }
+
   itemClicked(item) {
     console.log('Item clicked', item);
   }
