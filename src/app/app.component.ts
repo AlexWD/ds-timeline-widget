@@ -63,7 +63,7 @@ export class AppComponent {
         name: 'CH0',
         type: 'normal',
         color: '#0000FF',
-        selected: false,
+        selected: true
       },
       {
         id: 7,
@@ -100,7 +100,7 @@ export class AppComponent {
         start: 0,
         duration: 10,
         channel: 5,
-        selected: false
+        selected: true
       },
       {
         id: 2,
