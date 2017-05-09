@@ -25,6 +25,14 @@ export class AppComponent {
         time: '0',
         size: '110KB',
         src: 'assets/img/svgexample.svg'
+      },
+      {
+        id: 3,
+        name: 'fa-camera-retro',
+        type: 'fa',
+        time: '0',
+        size: '110KB',
+        src: 'fa-camera-retro'
       }
     ],
     outputs: [
@@ -84,7 +92,10 @@ export class AppComponent {
       {
         id: 1,
         type: 'channel',
-        resource: "assets/img/doc-13-128.png",
+        resource: {
+          type: 'png',
+          src: "assets/img/doc-13-128.png"
+        },
         title: 'Logo_splash',
         start: 0,
         duration: 10,
@@ -94,7 +105,10 @@ export class AppComponent {
       {
         id: 2,
         type: 'channel',
-        resource: "assets/img/doc-13-128.png",
+        resource: {
+          type: 'png',
+          src: "assets/img/doc-13-128.png"
+        },
         title: '350x350',
         start: 0,
         duration: 10,
@@ -105,38 +119,6 @@ export class AppComponent {
   });
 
   constructor() {
-    // for (let i = 0; i < 15; ++i) {
-    //   this.state.channels.push({
-    //     id: 4 + i,
-    //     name: 'CH2',
-    //     color: '#0000FF',
-    //     type: 'normal',
-    //     selected: false
-    //   });
-    // }
-    // for (let i = 0; i < 100; ++i) {
-    //   this.state.items.push({
-    //     id: 2,
-    //     type: 'channel',
-    //     resource: "assets/img/doc-13-128.png",
-    //     title: '350x350',
-    //     start: Math.floor(Math.random() * 20000),
-    //     duration: Math.floor(Math.random() * 500),
-    //     channel: 1 + Math.floor(Math.random() * 18),
-    //     selected: false
-    //   });
-    // }
-    //
-    // setTimeout(() => {
-    //   console.log("Adding new channel");
-    //   this.state.channels.push({
-    //     id: 4,
-    //       name: 'CH3',
-    //       color: '#0000FF',
-    //       type: 'normal',
-    //       selected: false
-    //     });
-    // }, 15 * 1000);
 
   }
 

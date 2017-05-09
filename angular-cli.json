@@ -21,7 +21,8 @@
         "styles.css",
         "../node_modules/bootstrap/dist/css/bootstrap.min.css",
         "assets/css/ruler.css",
-        "assets/css/jquery.timepicker.min.css"
+        "assets/css/jquery.timepicker.min.css",
+        "assets/css/font-awesome.min.css"
       ],
       "scripts": [
         "../src/assets/js/ruler.js",

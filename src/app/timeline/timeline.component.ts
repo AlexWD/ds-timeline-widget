@@ -423,7 +423,10 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
         var top = i * this.state.gridHeight;
 
         this.addItem({
-          resource: data.src,
+          resource: {
+            src: data.src,
+            type: data.type
+          },
           title: data.name,
           type: type,
           left: left,
