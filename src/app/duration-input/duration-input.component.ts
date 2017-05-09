@@ -26,7 +26,9 @@ export class DurationInputComponent implements OnInit {
     this.focusedItem.focus();
     switch (this.focus) {
       case "hour":
-        this.hours++;
+        if (++this.hours > 24) {
+          this.hours = 24;
+        }
         break;
       case "minute":
         if (++this.minutes == 60) {
@@ -49,15 +51,19 @@ export class DurationInputComponent implements OnInit {
   decrement() {
     switch (this.focus) {
       case "hour":
-        this.hours--;
+        if (--this.hours < 0) {
+            this.hours = 0;
+        }
         break;
       case "minute":
+        if (this.minutes == 0 && this.hours == 0) break;
         if (--this.minutes == -1) {
             this.minutes = 59;
             this.hours--;
         }
         break;
       case "second":
+        if (this.seconds == 0 && this.minutes == 0 && this.hours == 0) break;
         if (--this.seconds == -1) {
           this.seconds = 59;
           if (--this.minutes == -1) {
