@@ -55,7 +55,7 @@ export class AppComponent {
     ]
   };
   state = Map({
-    duration: 3600,
+    duration: 360,
     zoom: 1,
     channels: [
       {
