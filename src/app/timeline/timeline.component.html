@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="row" style="padding-top:50px;padding-bottom:50px;">
+  <div class="row" style="padding-top:50px;padding-bottom:50px;" *ngIf="dev">
     <button type="button" class="btn btn-default" (click)="addChannel()">Add Channel</button>
     <button type="button" class="btn btn-default" (click)="addCommonChannel()">Add Common Channel</button>
     <button type="button" class="btn btn-default" (click)="addOutput()">Add Output</button>
@@ -21,10 +21,10 @@
 
   </div>
   <div class="row" style="padding-bottom:50px;">
-    <app-duration-input
-      duration="{{ state.duration }}"
-      (durationChange)="timelineDurationChange($event)"
-    ></app-duration-input>
+    <!--<app-duration-input-->
+      <!--[setDuration]="state.duration"-->
+      <!--(durationChange)="timelineDurationChange($event)"-->
+    <!--&gt;</app-duration-input>-->
   </div>
   <div class="row" style="margin-left: 81px;">
     <app-timeline-ruler
@@ -80,7 +80,7 @@
       </div>
     </div>
   </div>
-  <div class="row"  style="padding-top:50px;padding-bottom:50px;">
+  <div class="row"  style="padding-top:50px;padding-bottom:50px;" *ngIf="dev">
     <div class="col-xs-4">
       <h4>Resources</h4>
       <table class="table">

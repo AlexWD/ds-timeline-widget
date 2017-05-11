@@ -17,7 +17,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
   $container;
 
   ruler = undefined;
-
+  dev = true;
   draggingItem;
   scrollPosition = 0;
 
@@ -568,6 +568,7 @@ export class TimelineComponent implements OnInit, AfterViewChecked, OnChanges {
   }
 
   changeZoom(e) {
+    if (!this.state) return;
     var zoomFactor = 10 / this.state.zoom;
 
     this.state.items.map((item) => {
